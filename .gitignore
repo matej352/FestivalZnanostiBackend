@@ -1,6 +1,9 @@
 # Created by https://www.toptal.com/developers/gitignore/api/visualstudio,visualstudiocode,node,dotnetcore
 # Edit at https://www.toptal.com/developers/gitignore?templates=visualstudio,visualstudiocode,node,dotnetcore
 
+
+*.vsidx
+
 ### DotnetCore ###
 # .NET Core build folders
 bin/
