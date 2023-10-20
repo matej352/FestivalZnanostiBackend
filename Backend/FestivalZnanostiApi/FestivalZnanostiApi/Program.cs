@@ -1,3 +1,4 @@
+using FestivalZnanostiApi.Middlewares;
 using FestivalZnanostiApi.Models;
 using FestivalZnanostiApi.Repositories;
 using FestivalZnanostiApi.Repositories.impl;
@@ -57,6 +58,8 @@ builder.Services.AddTransient<IFestivalYearRepository, FestivalYearRepository>()
 
 
 var app = builder.Build();
+
+app.UseMiddleware<ErrorHandlingMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

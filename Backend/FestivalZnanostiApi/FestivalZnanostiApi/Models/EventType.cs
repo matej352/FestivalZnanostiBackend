@@ -7,9 +7,9 @@ namespace FestivalZnanostiApi.Models;
 
 public partial class EventType
 {
-    public string Type { get; set; }
-
     public int Id { get; set; }
+
+    public string Type { get; set; }
 
     public virtual ICollection<Event> Event { get; set; } = new List<Event>();
 }
