@@ -28,10 +28,6 @@
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[EventType]",
-         "ObjectType": 0
-      },
-      {
          "Name": "[dbo].[FestivalYear]",
          "ObjectType": 0
       },
@@ -44,6 +40,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[Location]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[ParticipantsAge]",
          "ObjectType": 0
       },
@@ -53,10 +53,6 @@
       },
       {
          "Name": "[dbo].[TimeSlot]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[TimeSlotType]",
          "ObjectType": 0
       }
    ],

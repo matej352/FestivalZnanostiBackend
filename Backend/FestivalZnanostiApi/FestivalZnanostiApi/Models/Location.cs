@@ -5,11 +5,17 @@ using System.Collections.Generic;
 
 namespace FestivalZnanostiApi.Models;
 
-public partial class TimeSlotType
+public partial class Location
 {
     public int Id { get; set; }
 
-    public int Duration { get; set; }
+    public string Name { get; set; }
+
+    public int EventDuration { get; set; }
+
+    public int ParallelEventCount { get; set; }
+
+    public virtual ICollection<Event> Event { get; set; } = new List<Event>();
 
     public virtual ICollection<TimeSlot> TimeSlot { get; set; } = new List<TimeSlot>();
 }

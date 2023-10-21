@@ -1,4 +1,5 @@
 ﻿using FestivalZnanostiApi.DTOs;
+using FestivalZnanostiApi.DTOs.Extensions;
 using FestivalZnanostiApi.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,14 +15,34 @@ namespace FestivalZnanostiApi.Repositories.impl
             _context = context;
         }
 
-        public async Task<int> CreateFestivalYear(FestivalYear festivalYear)
+        public async Task<int> CreateFestivalYear(FestivalYearDto festivalYear)
         {
-            _context.Add(festivalYear);
+
+            FestivalYear newFestivalYear = new FestivalYear
+            {
+                Year = festivalYear.Year,
+                Active = festivalYear.Active,
+                Title = festivalYear.Title,
+                Topic = festivalYear.Topic,
+                Description = festivalYear.Description,
+                StartDate = festivalYear.StartDate.Date,
+                EndDate = festivalYear.EndDate.Date.AddDays(1)  //istestirao i mislim da je to to
+            };
+
+            _context.Add(newFestivalYear);
             await _context.SaveChangesAsync();
 
-            //TODO: CREATE TIMESLOTS (30 MIN AND 45 MIN) FOR DATES BETWEEN STARTDATE AND ENDDATE AND BETWEEN 8H AND 20H LOCAL TIME
+            return await Task.FromResult(newFestivalYear.Id);
+        }
 
-            return await Task.FromResult(festivalYear.Id);
+        public FestivalYearDto FindActiveFestivalYear()
+        {
+            FestivalYear? festival = _context.FestivalYear.Where(fy => fy.Active == 1).FirstOrDefault();
+            if (festival is null)
+            {
+                throw new Exception($"There is no active FestivalYear");
+            }
+            return festival.AsFestivalYearDto();
         }
 
         public async Task<FestivalYear> FindById(int id)
@@ -29,7 +50,7 @@ namespace FestivalZnanostiApi.Repositories.impl
             var festivalYear = await _context.FestivalYear.FindAsync(id);
             if (festivalYear is null)
             {
-                throw new Exception($"FestivalYear with id = {id} does not exists!");
+                throw new Exception($"FestivalYear with id = {id} does not exists");
             }
             else
             {

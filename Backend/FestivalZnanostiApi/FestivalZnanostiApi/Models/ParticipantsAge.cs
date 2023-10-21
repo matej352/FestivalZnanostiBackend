@@ -11,5 +11,7 @@ public partial class ParticipantsAge
 
     public string Age { get; set; }
 
+    public string Label { get; set; }
+
     public virtual ICollection<Event> Event { get; set; } = new List<Event>();
 }

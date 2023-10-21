@@ -8,5 +8,6 @@ namespace FestivalZnanostiApi.Servicess
     {
         public Task<IEnumerable<FestivalYear>> Get();
         public Task<FestivalYearDto> CreateFestivalYear(FestivalYearDto festivalYear);
+        public FestivalYearDto GetActiveFestivalYear();
     }
 }

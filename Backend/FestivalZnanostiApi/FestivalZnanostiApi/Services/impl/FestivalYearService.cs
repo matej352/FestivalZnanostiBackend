@@ -3,6 +3,7 @@ using FestivalZnanostiApi.DTOs.Extensions;
 using FestivalZnanostiApi.Models;
 using FestivalZnanostiApi.Repositories;
 using FestivalZnanostiApi.Repositories.impl;
+using FestivalZnanostiApi.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FestivalZnanostiApi.Servicess.impl
@@ -11,28 +12,24 @@ namespace FestivalZnanostiApi.Servicess.impl
     {
 
         private readonly IFestivalYearRepository _repo;
+        private readonly ITimeSlotService _timeSlotService;
 
-        public FestivalYearService(IFestivalYearRepository repo)
+        public FestivalYearService(IFestivalYearRepository repo, ITimeSlotService timeSlotService)
         {
             _repo = repo;
+            _timeSlotService = timeSlotService;
         }
 
         public Task<FestivalYearDto> CreateFestivalYear(FestivalYearDto festivalYear)
         {
             try
             {
-                FestivalYear newFestivalYear = new FestivalYear
-                {
-                    Year = festivalYear.Year,
-                    Active = festivalYear.Active,
-                    Title = festivalYear.Title,
-                    Topic = festivalYear.Topic,
-                    Description = festivalYear.Description,
-                    StartDate = festivalYear.StartDate,
-                    EndDate = festivalYear.EndDate
-                };
 
-                var id = _repo.CreateFestivalYear(newFestivalYear).Result;
+                var id = _repo.CreateFestivalYear(festivalYear).Result;
+
+
+                // create timeslots for new year of festival
+                _timeSlotService.CreateTimeSlots(festivalYear.StartDate, festivalYear.EndDate);
 
 
                 FestivalYear createdFestivalYear = _repo.FindById(id).Result;
@@ -49,6 +46,11 @@ namespace FestivalZnanostiApi.Servicess.impl
         public Task<IEnumerable<FestivalYear>> Get()
         {
             return _repo.GetFestivalYear();
+        }
+
+        public FestivalYearDto GetActiveFestivalYear()
+        {
+            return _repo.FindActiveFestivalYear();
         }
     }
 }

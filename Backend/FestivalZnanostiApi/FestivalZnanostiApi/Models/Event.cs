@@ -13,23 +13,25 @@ public partial class Event
 
     public int Status { get; set; }
 
+    public string Type { get; set; }
+
     public int VisitorsCount { get; set; }
 
     public string Equipment { get; set; }
 
     public string Summary { get; set; }
 
-    public int EventTypeId { get; set; }
+    public int LocationId { get; set; }
 
     public int? SubmitterId { get; set; }
 
     public int FestivalYearId { get; set; }
 
-    public virtual EventType EventType { get; set; }
-
     public virtual FestivalYear FestivalYear { get; set; }
 
     public virtual ICollection<Lecturer> Lecturer { get; set; } = new List<Lecturer>();
+
+    public virtual Location Location { get; set; }
 
     public virtual Submitter Submitter { get; set; }
 

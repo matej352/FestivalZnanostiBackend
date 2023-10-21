@@ -7,8 +7,10 @@ namespace FestivalZnanostiApi.Repositories
     {
         public Task<IEnumerable<FestivalYear>> GetFestivalYear();
 
-        public Task<int> CreateFestivalYear(FestivalYear festivalYear);
+        public Task<int> CreateFestivalYear(FestivalYearDto festivalYear);
 
         public Task<FestivalYear> FindById(int id);
+
+        public FestivalYearDto FindActiveFestivalYear();
     }
 }

@@ -47,6 +47,7 @@ builder.Services.AddDbContext<FestivalZnanostiContext>(options => options.UseSql
 // Services
 builder.Services.AddTransient<IFestivalYearService, FestivalYearService>();
 //builder.Services.AddTransient<IAuthService, AuthService>();
+builder.Services.AddTransient<ITimeSlotService, TimeSlotService>();
 
 
 
@@ -54,7 +55,7 @@ builder.Services.AddTransient<IFestivalYearService, FestivalYearService>();
 // Repositories
 builder.Services.AddTransient<IFestivalYearRepository, FestivalYearRepository>();
 //builder.Services.AddTransient<IAuthRepository, AuthRepository>();
-
+builder.Services.AddTransient<ITimeSlotRepository, TimeSlotRepository>();
 
 
 var app = builder.Build();

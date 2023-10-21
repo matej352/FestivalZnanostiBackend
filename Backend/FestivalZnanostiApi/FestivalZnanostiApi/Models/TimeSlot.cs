@@ -13,9 +13,9 @@ public partial class TimeSlot
 
     public int BookedCount { get; set; }
 
-    public int TimeSlotTypeId { get; set; }
+    public int LocationId { get; set; }
 
-    public virtual TimeSlotType TimeSlotType { get; set; }
+    public virtual Location Location { get; set; }
 
     public virtual ICollection<Event> Event { get; set; } = new List<Event>();
 }
