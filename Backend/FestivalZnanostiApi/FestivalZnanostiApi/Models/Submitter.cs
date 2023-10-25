@@ -15,5 +15,7 @@ public partial class Submitter
 
     public int Role { get; set; }
 
+    public string Salt { get; set; }
+
     public virtual ICollection<Event> Event { get; set; } = new List<Event>();
 }

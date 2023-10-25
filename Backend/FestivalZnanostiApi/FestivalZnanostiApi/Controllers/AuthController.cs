@@ -44,7 +44,7 @@ namespace FestivalZnanostiApi.Controllers
             {
                 var roleId = (user.Email == "pero@gmail.com") ? 0 : 1;
 
-                var userRole = (roleId == Convert.ToInt32(UserRole.Administrator)) ? "Administrator" : "Submitter";
+                var userRole = (roleId == (int)UserRole.Administrator) ? "Administrator" : "Submitter";
 
                 var claims = new List<Claim>()
                 {

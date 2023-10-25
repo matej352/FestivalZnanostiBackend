@@ -10,5 +10,6 @@
         // public byte[]? Image { get; set; } SLIKA ĆE SE SLATI ODVOJENO NA FilesController
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+        public DateTime EditUntil { get; set; }
     }
 }

@@ -33,12 +33,11 @@ public partial class FestivalZnanostiContext : DbContext
 
     public virtual DbSet<TimeSlot> TimeSlot { get; set; }
 
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Administrator>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Administ__3214EC07BAC62675");
+            entity.HasKey(e => e.Id).HasName("PK__Administ__3214EC0798840ED3");
 
             entity.Property(e => e.Email)
                 .IsRequired()
@@ -56,11 +55,12 @@ public partial class FestivalZnanostiContext : DbContext
                 .IsRequired()
                 .HasMaxLength(1000)
                 .IsUnicode(false);
+            entity.Property(e => e.Salt).IsUnicode(false);
         });
 
         modelBuilder.Entity<Event>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Event__3214EC078D4BBE6F");
+            entity.HasKey(e => e.Id).HasName("PK__Event__3214EC075E3FE09A");
 
             entity.Property(e => e.Equipment)
                 .IsRequired()
@@ -103,20 +103,21 @@ public partial class FestivalZnanostiContext : DbContext
                         .HasConstraintName("FK__ForAge__EventId__398D8EEE"),
                     j =>
                     {
-                        j.HasKey("EventId", "ParticipantsAgeId").HasName("PK__ForAge__F266F9B5B0DCD130");
+                        j.HasKey("EventId", "ParticipantsAgeId").HasName("PK__ForAge__F266F9B5428FE66D");
                     });
         });
 
         modelBuilder.Entity<FestivalYear>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Festival__3214EC07E7FA97CC");
+            entity.HasKey(e => e.Id).HasName("PK__Festival__3214EC076F9E9C70");
 
             entity.Property(e => e.Description)
                 .IsRequired()
                 .HasMaxLength(1000)
                 .IsUnicode(false);
-            entity.Property(e => e.EndDate).HasColumnType("date");
-            entity.Property(e => e.StartDate).HasColumnType("date");
+            entity.Property(e => e.EditUntil).HasColumnType("datetime");
+            entity.Property(e => e.EndDate).HasColumnType("datetime");
+            entity.Property(e => e.StartDate).HasColumnType("datetime");
             entity.Property(e => e.Title)
                 .IsRequired()
                 .HasMaxLength(300)
@@ -129,7 +130,7 @@ public partial class FestivalZnanostiContext : DbContext
 
         modelBuilder.Entity<Lecturer>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Lecturer__3214EC07B37EB237");
+            entity.HasKey(e => e.Id).HasName("PK__Lecturer__3214EC0771628F84");
 
             entity.Property(e => e.Email)
                 .IsRequired()
@@ -158,7 +159,7 @@ public partial class FestivalZnanostiContext : DbContext
 
         modelBuilder.Entity<Location>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Location__3214EC072A0D73DD");
+            entity.HasKey(e => e.Id).HasName("PK__Location__3214EC07B3902D6C");
 
             entity.Property(e => e.Name)
                 .IsRequired()
@@ -168,7 +169,7 @@ public partial class FestivalZnanostiContext : DbContext
 
         modelBuilder.Entity<ParticipantsAge>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Particip__3214EC07EA298C39");
+            entity.HasKey(e => e.Id).HasName("PK__Particip__3214EC07D0F57884");
 
             entity.Property(e => e.Age)
                 .IsRequired()
@@ -183,23 +184,21 @@ public partial class FestivalZnanostiContext : DbContext
 
         modelBuilder.Entity<Submitter>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Submitte__3214EC07C811EAAD");
+            entity.HasKey(e => e.Id).HasName("PK__Submitte__3214EC079721DB78");
 
-            entity.HasIndex(e => e.Email, "UQ__Submitte__A9D10534CEEEF8B7").IsUnique();
+            entity.HasIndex(e => e.Email, "UQ__Submitte__A9D1053452B1CE1D").IsUnique();
 
             entity.Property(e => e.Email)
                 .IsRequired()
                 .HasMaxLength(100)
                 .IsUnicode(false);
-            entity.Property(e => e.Password)
-                .IsRequired()
-                .HasMaxLength(1000)
-                .IsUnicode(false);
+            entity.Property(e => e.Password).IsUnicode(false);
+            entity.Property(e => e.Salt).IsUnicode(false);
         });
 
         modelBuilder.Entity<TimeSlot>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__TimeSlot__3214EC07D75A0B99");
+            entity.HasKey(e => e.Id).HasName("PK__TimeSlot__3214EC07F19DCC85");
 
             entity.Property(e => e.Start).HasColumnType("datetime");
 
@@ -219,7 +218,7 @@ public partial class FestivalZnanostiContext : DbContext
                         .HasConstraintName("FK__During__TimeSlot__3D5E1FD2"),
                     j =>
                     {
-                        j.HasKey("TimeSlotId", "EventId").HasName("PK__During__565853B32D229C78");
+                        j.HasKey("TimeSlotId", "EventId").HasName("PK__During__565853B3A19D4AF5");
                     });
         });
 
