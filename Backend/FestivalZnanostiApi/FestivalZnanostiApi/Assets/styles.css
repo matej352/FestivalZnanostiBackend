@@ -1,2 +1,13 @@
-﻿body {
+﻿
+.width15 {
+    width: 15%;
+}
+
+td {
+    padding: 10px;
+}
+
+
+table {
+    font-family: 'Arial'
 }
