@@ -1,3 +1,5 @@
+using DinkToPdf;
+using DinkToPdf.Contracts;
 using FestivalZnanostiApi.Middlewares;
 using FestivalZnanostiApi.Models;
 using FestivalZnanostiApi.Repositories;
@@ -36,6 +38,10 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     });
 
 
+
+builder.Services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
+
+
 // Add services to the container.
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -50,6 +56,7 @@ builder.Services.AddTransient<IFestivalYearService, FestivalYearService>();
 builder.Services.AddTransient<ITimeSlotService, TimeSlotService>();
 builder.Services.AddTransient<IEventsService, EventsService>();
 builder.Services.AddTransient<ISubmitterService, SubmitterService>();
+builder.Services.AddTransient<IFilesService, FilesService>();
 
 
 
