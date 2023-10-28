@@ -30,6 +30,19 @@ namespace FestivalZnanostiApi.Repositories.impl
                 EditUntil = festivalYear.StartDate.Date.AddDays(-21), // submitter može editirat svoj event sve do 3 tjedna prije početka festivala (ili i uvest mogućnost da admin odabere do kada), admin može editirati sve evente čitavo vrijeme
             };
 
+            if (festivalYear.Active == 1)
+            {
+                // Set Active to 0 for every other festival year because at a time only 1 festival year can be active
+                var activeFestivalYears = await _context.FestivalYear
+                    .Where(fy => fy.Active == 1)
+                    .ToListAsync();
+
+                foreach (var activeFestivalYear in activeFestivalYears)
+                {
+                    activeFestivalYear.Active = 0;
+                }
+            }
+
             _context.Add(newFestivalYear);
             await _context.SaveChangesAsync();
 

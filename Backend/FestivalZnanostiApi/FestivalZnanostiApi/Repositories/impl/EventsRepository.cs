@@ -33,6 +33,7 @@ namespace FestivalZnanostiApi.Repositories.impl
 
         public async Task<int> SaveEvent(CreateEventDto createEvent, int submitterId)
         {
+
             Event newEvent = new Event
             {
                 Title = createEvent.Title,
@@ -42,7 +43,7 @@ namespace FestivalZnanostiApi.Repositories.impl
                 Equipment = createEvent.Equipment,
                 Summary = createEvent.Summary,
                 LocationId = createEvent.LocationId,
-                FestivalYearId = createEvent.FestivalYearId,
+                FestivalYearId = _context.FestivalYear.Where(festivalYear => festivalYear.Active == 1).FirstOrDefault()!.Id,
                 SubmitterId = submitterId,
 
             };

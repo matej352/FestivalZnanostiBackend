@@ -19,8 +19,6 @@ namespace FestivalZnanostiApi.DTOs
 
         public int LocationId { get; set; }
 
-        public int FestivalYearId { get; set; }     // razmislit treba li ili ne
-
         public List<LecturerDto> Lecturers { get; set; }
 
         public List<ParticipantsAgeDto> ParticipantsAges { get; set; }
