@@ -43,14 +43,19 @@ namespace FestivalZnanostiApi.Servicess.impl
 
         }
 
-        public Task<IEnumerable<FestivalYear>> Get()
+        public Task<IEnumerable<FestivalYearDto>> GetFestivalYears()
         {
-            return _repo.GetFestivalYear();
+            return _repo.GetFestivalYears();
         }
 
         public FestivalYearDto GetActiveFestivalYear()
         {
             return _repo.FindActiveFestivalYear();
+        }
+
+        public Task<FestivalYearDto> GetFestivalYear(int festivalYearId)
+        {
+            return _repo.GetFestivalYear(festivalYearId);
         }
     }
 }

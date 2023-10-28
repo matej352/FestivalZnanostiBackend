@@ -21,19 +21,30 @@ namespace FestivalZnanostiApi.Controllers
 
         }
 
-        [HttpGet(Name = "festival")]
-        public Task<IEnumerable<FestivalYear>> Get()
+        [HttpGet]
+        [Route("FestivalYears")]
+        public Task<IEnumerable<FestivalYearDto>> GetFestivalYears()
         {
-            var festivalYear = _festivalYearService.Get();
+            var festivalYears = _festivalYearService.GetFestivalYears();
+            return festivalYears;
+        }
+
+
+        [HttpGet]
+        [Route("FestivalYear")]
+        public Task<FestivalYearDto> GetFestivalYear(int festivalYearId)
+        {
+            var festivalYear = _festivalYearService.GetFestivalYear(festivalYearId);
             return festivalYear;
         }
 
 
 
         [HttpPost]
-        public Task<FestivalYearDto> CreateFestivalYear(FestivalYearDto festivalYear)
+        [Route("Create")]
+        public Task<FestivalYearDto> CreateFestivalYear(FestivalYearDto FestivalYear)
         {
-            var newFestivalYear = _festivalYearService.CreateFestivalYear(festivalYear);
+            var newFestivalYear = _festivalYearService.CreateFestivalYear(FestivalYear);
             return newFestivalYear;
         }
     }

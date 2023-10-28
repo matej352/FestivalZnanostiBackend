@@ -9,8 +9,8 @@ using System.Security.Claims;
 
 namespace FestivalZnanostiApi.Controllers
 {
-    [Route("[controller]")]
     [ApiController]
+    [Route("[controller]")]
     public class AuthController : ControllerBase
     {
 
@@ -48,7 +48,7 @@ namespace FestivalZnanostiApi.Controllers
 
                 var claims = new List<Claim>()
                 {
-                    new Claim(ClaimTypes.NameIdentifier, Convert.ToString(user.Email)),
+                    new Claim(ClaimTypes.NameIdentifier, Convert.ToString(1)),  // user id
                     new Claim(ClaimTypes.Email,user.Email),
                     new Claim(ClaimTypes.Role,  userRole),
                     // Any additional custom clam --> new Claim("DotNetMania", "Code")
@@ -85,13 +85,6 @@ namespace FestivalZnanostiApi.Controllers
         [Route("restricted")]
         public string Restricted()
         {
-            var cookieValue = HttpContext.Request.Cookies["FestivalZnanostiCookie"];
-            var a = HttpContext.User.Identity;
-            if (cookieValue != null)
-            {
-                Console.WriteLine(cookieValue.ToString());
-
-            }
             return "Dobar si";
         }
 

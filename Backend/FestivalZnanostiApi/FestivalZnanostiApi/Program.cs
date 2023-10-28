@@ -1,6 +1,7 @@
 using DinkToPdf;
 using DinkToPdf.Contracts;
 using FestivalZnanostiApi.Middlewares;
+using FestivalZnanostiApi.Middlewares.UserContext;
 using FestivalZnanostiApi.Models;
 using FestivalZnanostiApi.Repositories;
 using FestivalZnanostiApi.Repositories.impl;
@@ -40,6 +41,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 
 builder.Services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
+builder.Services.AddSingleton<UserContext>(); // Register UserContext as a singleton
 
 
 // Add services to the container.
@@ -73,6 +75,7 @@ var app = builder.Build();
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -88,6 +91,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseCookiePolicy();
+
+app.UseMiddleware<UserContextMiddleware>();
 
 app.MapControllers();
 

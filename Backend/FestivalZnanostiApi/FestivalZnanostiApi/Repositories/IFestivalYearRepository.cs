@@ -5,7 +5,9 @@ namespace FestivalZnanostiApi.Repositories
 {
     public interface IFestivalYearRepository
     {
-        public Task<IEnumerable<FestivalYear>> GetFestivalYear();
+        public Task<IEnumerable<FestivalYearDto>> GetFestivalYears();
+
+        public Task<FestivalYearDto> GetFestivalYear(int id);
 
         public Task<int> CreateFestivalYear(FestivalYearDto festivalYear);
 

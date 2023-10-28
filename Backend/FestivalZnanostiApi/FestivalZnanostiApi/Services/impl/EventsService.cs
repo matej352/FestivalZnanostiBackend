@@ -1,4 +1,5 @@
 ﻿using FestivalZnanostiApi.DTOs;
+using FestivalZnanostiApi.DTOs.Extensions;
 using FestivalZnanostiApi.Models;
 using FestivalZnanostiApi.Repositories;
 using NuGet.Protocol.Core.Types;
@@ -35,6 +36,24 @@ namespace FestivalZnanostiApi.Services.impl
             //int eventId = await _eventsRepository.Save(newKrstarenje);
 
             return _event;
+        }
+
+        public async Task<IEnumerable<EventDto>> GetEvents()
+        {
+            var events = await _eventsRepository.GetEvents();
+
+            List<EventDto> eventDtoList = events.Select(e => e.AsEventDto()).ToList();
+
+            return eventDtoList;
+        }
+
+        public async Task<IEnumerable<EventDto>> GetSubmittersEvents(int id)
+        {
+            var events = await _eventsRepository.GetEvents(id);
+
+            List<EventDto> eventDtoList = events.Select(e => e.AsEventDto()).ToList();
+
+            return eventDtoList;
         }
     }
 }

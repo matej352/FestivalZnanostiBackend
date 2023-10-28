@@ -6,8 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FestivalZnanostiApi.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("[controller]")]
     public class TimeSlotsController : ControllerBase
     {
 

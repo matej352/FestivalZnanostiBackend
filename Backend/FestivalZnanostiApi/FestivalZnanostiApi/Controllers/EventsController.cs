@@ -8,22 +8,30 @@ using Microsoft.EntityFrameworkCore;
 using FestivalZnanostiApi.Models;
 using FestivalZnanostiApi.Services;
 using FestivalZnanostiApi.DTOs;
+using Microsoft.AspNetCore.Authorization;
+using FestivalZnanostiApi.Middlewares.UserContext;
 
 namespace FestivalZnanostiApi.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("[controller]")]
     public class EventsController : ControllerBase
     {
+
+        private readonly UserContext _userContext;
         private readonly IEventsService _eventsService;
 
-        public EventsController(IEventsService eventsService)
+        public EventsController(
+            IEventsService eventsService,
+            UserContext userContext)
         {
             _eventsService = eventsService;
+            _userContext = userContext;
         }
 
 
         [HttpPost]
+        [Route("Create")]
         public async Task<ActionResult<Event>> CreateEvent(CreateEventDto createEvent)
         {
 
@@ -35,40 +43,61 @@ namespace FestivalZnanostiApi.Controllers
         }
 
         //return CreatedAtAction("GetEvent", new { id = @event.Id }, @event);
-    }
 
 
-    /*
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<Event>>> GetEvent()
-    {
-      if (_context.Event == null)
-      {
-          return NotFound();
-      }
-        return await _context.Event.ToListAsync();
-    }
 
-
-    [HttpGet("{id}")]
-    public async Task<ActionResult<Event>> GetEvent(int id)
-    {
-      if (_context.Event == null)
-      {
-          return NotFound();
-      }
-        var @event = await _context.Event.FindAsync(id);
-
-        if (@event == null)
+        //[Authorize(Roles = "Administrator")]
+        [HttpGet]
+        [Route("GetEvents")]
+        public async Task<ActionResult<IEnumerable<EventDto>>> GetEvents()
         {
-            return NotFound();
+
+            var events = await _eventsService.GetEvents();
+
+            return Ok(events);
+
+
         }
 
-        return @event;
-    }
+
+        [Authorize(Roles = "Submitter")]
+        [HttpGet]
+        [Route("GetSubmittersEvents/{id}")]
+        public async Task<ActionResult<IEnumerable<EventDto>>> GetSubmittersEvents(int id)
+        {
+            if (_userContext.Id != id)
+            {
+                return Forbid();
+            }
+            var events = await _eventsService.GetSubmittersEvents(id);
+
+            return Ok(events);
+        }
 
 
 
+        /*
+        
+        [HttpGet("{id}")]
+        [Route("GetEvent")]
+        public async Task<ActionResult<Event>> GetEvent(int id)
+        {
+            if (_context.Event == null)
+            {
+                return NotFound();
+            }
+            var @event = await _context.Event.FindAsync(id);
+
+            if (@event == null)
+            {
+                return NotFound();
+            }
+
+            return @event;
+        }
+        */
+
+        /*
     [HttpPut("{id}")]
     public async Task<IActionResult> PutEvent(int id, Event @event)
     {
@@ -118,12 +147,8 @@ namespace FestivalZnanostiApi.Controllers
         return NoContent();
     }
 
-    private bool EventExists(int id)
-    {
-        return (_context.Event?.Any(e => e.Id == id)).GetValueOrDefault();
-    }
-
     */
+    }
 }
 
 

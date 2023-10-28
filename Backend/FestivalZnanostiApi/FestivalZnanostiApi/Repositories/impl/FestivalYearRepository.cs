@@ -73,11 +73,25 @@ namespace FestivalZnanostiApi.Repositories.impl
 
         }
 
-        public async Task<IEnumerable<FestivalYear>> GetFestivalYear()
+        public async Task<IEnumerable<FestivalYearDto>> GetFestivalYears()
         {
-            return await _context.FestivalYear.ToListAsync();
+            var festivalYearList = await _context.FestivalYear.ToListAsync();
+            List<FestivalYearDto> festivalYearDtoList = festivalYearList.Select(fy => fy.AsFestivalYearDto()).ToList();
+            return festivalYearDtoList;
         }
 
+
+        public async Task<FestivalYearDto> GetFestivalYear(int festivalYearId)
+        {
+            FestivalYear? festival = await _context.FestivalYear.FindAsync(festivalYearId);
+
+            if (festival is null)
+            {
+                throw new Exception($"There is no FestivalYear with id = {festivalYearId}");
+            }
+
+            return festival.AsFestivalYearDto();
+        }
 
     }
 }

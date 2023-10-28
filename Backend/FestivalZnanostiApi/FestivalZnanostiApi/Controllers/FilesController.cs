@@ -6,8 +6,8 @@ using System.Net.Mime;
 
 namespace FestivalZnanostiApi.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("[controller]")]
     public class FilesController : ControllerBase
     {
 

@@ -6,7 +6,10 @@ namespace FestivalZnanostiApi.Servicess
 {
     public interface IFestivalYearService
     {
-        public Task<IEnumerable<FestivalYear>> Get();
+        public Task<IEnumerable<FestivalYearDto>> GetFestivalYears();
+
+        public Task<FestivalYearDto> GetFestivalYear(int festivalYearId);
+
         public Task<FestivalYearDto> CreateFestivalYear(FestivalYearDto festivalYear);
         public FestivalYearDto GetActiveFestivalYear();
     }

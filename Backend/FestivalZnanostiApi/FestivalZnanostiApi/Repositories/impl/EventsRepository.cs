@@ -31,6 +31,33 @@ namespace FestivalZnanostiApi.Repositories.impl
             }
         }
 
+        public async Task<IEnumerable<Event>> GetEvents()
+        {
+            var events = await _context.Event
+                .Include(e => e.Location)
+                .Include(e => e.Submitter)
+                .Include(e => e.ParticipantsAge)
+                .Include(e => e.Lecturer)
+                .Include(e => e.TimeSlot)
+                .ToListAsync();
+
+            return events;
+        }
+
+        public async Task<IEnumerable<Event>> GetEvents(int submitterId)
+        {
+            var events = await _context.Event
+                .Include(e => e.Location)
+                .Include(e => e.Submitter)
+                .Include(e => e.ParticipantsAge)
+                .Include(e => e.Lecturer)
+                .Include(e => e.TimeSlot)
+                .Where(e => e.SubmitterId == submitterId)
+                .ToListAsync();
+
+            return events;
+        }
+
         public async Task<int> SaveEvent(CreateEventDto createEvent, int submitterId)
         {
 

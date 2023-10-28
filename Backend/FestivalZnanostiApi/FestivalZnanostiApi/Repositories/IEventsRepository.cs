@@ -8,5 +8,9 @@ namespace FestivalZnanostiApi.Repositories
         public Task<int> SaveEvent(CreateEventDto createEvent, int submitterId);
 
         public Task<Event> GetEvent(int id);
+
+        public Task<IEnumerable<Event>> GetEvents();
+
+        public Task<IEnumerable<Event>> GetEvents(int submitterId);
     }
 }
