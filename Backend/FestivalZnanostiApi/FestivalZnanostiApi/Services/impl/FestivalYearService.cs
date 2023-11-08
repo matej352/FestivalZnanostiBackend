@@ -20,7 +20,7 @@ namespace FestivalZnanostiApi.Servicess.impl
             _timeSlotService = timeSlotService;
         }
 
-        public Task<FestivalYearDto> CreateFestivalYear(FestivalYearDto festivalYear)
+        public Task<FestivalYearDto> CreateFestivalYear(CreateFestivalYearDto festivalYear)
         {
             try
             {

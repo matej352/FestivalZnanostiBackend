@@ -55,8 +55,10 @@ namespace FestivalZnanostiApi.Services.impl
 
             foreach (var locationTemp in _LocationTempList)
             {
-                timeSlots.AddRange(GenerateTimeSlots(startDate, endDate, locationTemp));
+                timeSlots.AddRange(GenerateTimeSlots(startDate, endDate, locationTemp));    //create timeslots for locations on which we track parallel events count (locations with TimeSlotTracked = 1 --> Locations in Tehnički muzej)
             }
+
+            timeSlots.AddRange(GenerateNonTrackableTimeSlots(startDate, endDate));    //create timeslots for locations on which we DO NOT track parallel events count (locations with TimeSlotTracked = 0 --> Locations outside of Tehnički muzej)
 
 
             await _repo.SaveTimeSlots(timeSlots);
@@ -101,6 +103,34 @@ namespace FestivalZnanostiApi.Services.impl
             return timeSlots;
         }
 
+
+        public List<TimeSlotTemp> GenerateNonTrackableTimeSlots(DateTime startDate, DateTime endDate)   // for example: 20/21/2023 at midnight (12am)
+        {
+            var timeSlots = new List<TimeSlotTemp>();
+
+            // Loop through each day from StartDate to EndDate
+            for (var currentDate = startDate.Date; currentDate <= endDate.Date; currentDate = currentDate.AddDays(1))
+            {
+                // Create time slots with 30-minute duration from 8 am to 8 pm
+                var startTime = currentDate.AddHours(WINDOW_START);
+                var endTime = currentDate.AddHours(WINDOW_END).AddMinutes(-60); // Adjust to end at 7:30/7:15 pm
+
+                while (startTime <= endTime)
+                {
+                    var slot = new TimeSlotTemp
+                    {
+                        StartTime = startTime,
+                        EndTime = startTime.AddMinutes(60)
+                    };
+
+                    timeSlots.Add(slot);
+                    startTime = startTime.AddMinutes(60); // Move to the next 30-minute/45-minute slot
+                }
+            }
+
+            return timeSlots;
+        }
+
         public Task<IEnumerable<TimeSlotDto>> GetAvailableTimeSlots(int locationId)
         {
             var festivalYear = _festivalYearRepository.FindActiveFestivalYear();
@@ -116,7 +146,7 @@ public class TimeSlotTemp
 {
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
-    public int LocationId { get; set; }
+    public int? LocationId { get; set; }
 }
 
 public class LocationTemp

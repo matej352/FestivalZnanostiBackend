@@ -15,16 +15,37 @@ namespace FestivalZnanostiApi.Repositories.impl
 
         public async Task<IEnumerable<TimeSlotDto>> GetAvailableTimeSlots(int locationId, DateTime start, DateTime end)
         {
-            var availableTimeSlots = await _context.TimeSlot
-             .Where(ts => ts.LocationId == locationId &&
-                          ts.Start >= start && ts.Start <= end &&
-                          ts.BookedCount < ts.Location.ParallelEventCount)
-             .Select(ts => new TimeSlotDto
-             {
-                 Id = ts.Id,
-                 Start = ts.Start,
-             })
-             .ToListAsync();
+
+            IEnumerable<TimeSlotDto> availableTimeSlots;
+
+            // Get timeslots for which we do not track BookedCount and Location
+            if (locationId == 0)
+            {
+                availableTimeSlots = await _context.TimeSlot
+                           .Where(ts => ts.LocationId == null &&
+                                   ts.Start >= start && ts.Start <= end)
+                           .Select(ts => new TimeSlotDto
+                           {
+                               Id = ts.Id,
+                               Start = ts.Start,
+                           })
+                           .ToListAsync();
+            }
+            // Get timeslots for which we track BookedCount and Location
+            else
+            {
+                availableTimeSlots = await _context.TimeSlot
+                            .Where(ts => ts.LocationId == locationId &&
+                                    ts.Start >= start && ts.Start <= end &&
+                                    ts.BookedCount < ts.Location.ParallelEventCount)
+                            .Select(ts => new TimeSlotDto
+                            {
+                                Id = ts.Id,
+                                Start = ts.Start,
+                            })
+                            .ToListAsync();
+
+            }
 
             return availableTimeSlots;
         }

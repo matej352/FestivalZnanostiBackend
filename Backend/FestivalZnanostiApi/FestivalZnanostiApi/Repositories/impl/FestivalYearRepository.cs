@@ -15,7 +15,7 @@ namespace FestivalZnanostiApi.Repositories.impl
             _context = context;
         }
 
-        public async Task<int> CreateFestivalYear(FestivalYearDto festivalYear)
+        public async Task<int> CreateFestivalYear(CreateFestivalYearDto festivalYear)
         {
 
             FestivalYear newFestivalYear = new FestivalYear

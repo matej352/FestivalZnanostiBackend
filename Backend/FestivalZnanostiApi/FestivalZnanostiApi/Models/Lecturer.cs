@@ -17,7 +17,7 @@ public partial class Lecturer
 
     public string Email { get; set; }
 
-    public int Type { get; set; }
+    public bool Type { get; set; }
 
     public string Resume { get; set; }
 

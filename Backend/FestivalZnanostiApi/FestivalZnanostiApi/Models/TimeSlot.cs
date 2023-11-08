@@ -13,7 +13,7 @@ public partial class TimeSlot
 
     public int BookedCount { get; set; }
 
-    public int LocationId { get; set; }
+    public int? LocationId { get; set; }
 
     public virtual Location Location { get; set; }
 

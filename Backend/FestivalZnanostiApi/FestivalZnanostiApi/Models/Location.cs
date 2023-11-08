@@ -11,11 +11,19 @@ public partial class Location
 
     public string Name { get; set; }
 
+    public bool TimeSlotsTracked { get; set; }
+
     public int EventDuration { get; set; }
 
     public int ParallelEventCount { get; set; }
 
+    public int? ParentLocationId { get; set; }
+
     public virtual ICollection<Event> Event { get; set; } = new List<Event>();
+
+    public virtual ICollection<Location> InverseParentLocation { get; set; } = new List<Location>();
+
+    public virtual Location ParentLocation { get; set; }
 
     public virtual ICollection<TimeSlot> TimeSlot { get; set; } = new List<TimeSlot>();
 }

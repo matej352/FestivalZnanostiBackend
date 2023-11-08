@@ -42,7 +42,7 @@ namespace FestivalZnanostiApi.Controllers
 
         [HttpPost]
         [Route("Create")]
-        public Task<FestivalYearDto> CreateFestivalYear(FestivalYearDto FestivalYear)
+        public Task<FestivalYearDto> CreateFestivalYear(CreateFestivalYearDto FestivalYear)
         {
             var newFestivalYear = _festivalYearService.CreateFestivalYear(FestivalYear);
             return newFestivalYear;

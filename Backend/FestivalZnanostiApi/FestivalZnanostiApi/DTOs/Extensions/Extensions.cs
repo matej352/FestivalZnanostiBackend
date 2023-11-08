@@ -53,7 +53,7 @@ namespace FestivalZnanostiApi.DTOs.Extensions
                 LastName = l.LastName,
                 Phone = l.Phone,
                 Email = l.Email,
-                Type = (LecturerType)l.Type,
+                Type = (LecturerType)Convert.ToInt32(l.Type),
                 Resume = l.Resume
             };
         }

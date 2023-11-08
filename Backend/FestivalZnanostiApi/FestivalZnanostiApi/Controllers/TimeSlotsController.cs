@@ -22,8 +22,9 @@ namespace FestivalZnanostiApi.Controllers
 
 
         // GET: api/<TimeSlotsController>
-        // Dohvaćanje slobodnih termina na lokaciji sa id = locationId za aktivnu godinu (FestivalYear.Active = 1)
+        // Dohvaćanje slobodnih termina na lokaciji sa id = locationId za aktivnu godinu (FestivalYear.Active = 1), ako se ne preda locationId onda se vraćaju svi termini za aktivnu godinu za koje ne pratimo popunjenost
         [HttpGet]
+        [Route("GetAvailableTimeSlots")]
         public Task<IEnumerable<TimeSlotDto>> GetAvailableTimeSlots(int locationId)
         {
             var timeSlots = _timeSlotService.GetAvailableTimeSlots(locationId);
