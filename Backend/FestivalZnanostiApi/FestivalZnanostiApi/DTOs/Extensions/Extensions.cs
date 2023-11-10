@@ -80,6 +80,19 @@ namespace FestivalZnanostiApi.DTOs.Extensions
         }
 
 
+        public static AccountDto AsAccountDto(this Account a)
+        {
+            return new AccountDto
+            {
+                Id = a.Id,
+                FirstName = a.FirstName,
+                LastName = a.LastName,
+                Email = a.Email,
+                Role = a.Role,
+            };
+        }
+
+
 
     }
 }

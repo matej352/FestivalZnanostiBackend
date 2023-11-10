@@ -1,5 +1,6 @@
 ﻿using FestivalZnanostiApi.DTOs;
 using FestivalZnanostiApi.Enums;
+using FestivalZnanostiApi.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -14,44 +15,49 @@ namespace FestivalZnanostiApi.Controllers
     public class AuthController : ControllerBase
     {
 
-        public List<LoginDto> loginDtos = null;
 
-        public AuthController()
+        private readonly IAuthService _authService;
+
+
+
+        public AuthController(IAuthService authService)
         {
-            loginDtos = new List<LoginDto>
-            {
-                new LoginDto()
-                {
-                    Email = "pero@gmail.com",
-                    Password = "password",
-                },
-                new LoginDto()
-                {
-                    Email = "ante@gmail.com",
-                    Password = "password",
-                }
-            };
+            _authService = authService;
         }
+
+
+        [HttpPost]
+        [Route("Register")]
+        public async Task<ActionResult> Register(RegisterDto registerDto)
+        {
+
+            var accountId = await this._authService.registerAccount(registerDto);
+
+            return Ok("Account registerd successfully!");
+
+        }
+
 
 
         // POST api/<AuthenticationController>
         [HttpPost]
         [Route("Login")]
-        public async Task<string> Login(LoginDto loginDto)
+        public async Task<ActionResult> Login(LoginDto loginDto)
         {
-            var user = loginDtos.Where(u => u.Email == loginDto.Email && u.Password == loginDto.Password).FirstOrDefault();
-            if (user != null)
-            {
-                var roleId = (user.Email == "pero@gmail.com") ? 0 : 1;
 
-                var userRole = (roleId == (int)UserRole.Administrator) ? "Administrator" : "Submitter";
+            var account = await this._authService.loginAccount(loginDto);
+
+            if (account is not null)
+            {
+
+                var userRole = (account.Role == (int)UserRole.Administrator) ? "Administrator" : "Submitter";
 
                 var claims = new List<Claim>()
                 {
-                    new Claim(ClaimTypes.NameIdentifier, Convert.ToString(1)),  // user id
-                    new Claim(ClaimTypes.Email,user.Email),
+                    new Claim(ClaimTypes.NameIdentifier, Convert.ToString(account.Id)),
+                    new Claim(ClaimTypes.Email,account.Email),
                     new Claim(ClaimTypes.Role,  userRole),
-                    // Any additional custom clam --> new Claim("DotNetMania", "Code")
+                    // Any additional custom claim --> new Claim("DotNetMania", "Code")
 
                 };
 
@@ -61,17 +67,17 @@ namespace FestivalZnanostiApi.Controllers
                 {
                     IsPersistent = true
                 });
-                return "Logged in successfully";
+                return Ok("Logged in successfully");
             }
             else
             {
-                return "Invalid email or password";
+                return BadRequest("Invalid email or password");
             }
         }
 
         // POST api/<AuthenticationController>
         [HttpGet]
-        [Route("logout")]
+        [Route("Logout")]
         public async Task<string> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);

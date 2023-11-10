@@ -33,7 +33,7 @@ public partial class Event
 
     public virtual Location Location { get; set; }
 
-    public virtual Submitter Submitter { get; set; }
+    public virtual Account Submitter { get; set; }
 
     public virtual ICollection<ParticipantsAge> ParticipantsAge { get; set; } = new List<ParticipantsAge>();
 

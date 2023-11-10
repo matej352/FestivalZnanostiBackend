@@ -17,7 +17,7 @@ public partial class FestivalZnanostiContext : DbContext
     {
     }
 
-    public virtual DbSet<Administrator> Administrator { get; set; }
+    public virtual DbSet<Account> Account { get; set; }
 
     public virtual DbSet<Event> Event { get; set; }
 
@@ -29,15 +29,15 @@ public partial class FestivalZnanostiContext : DbContext
 
     public virtual DbSet<ParticipantsAge> ParticipantsAge { get; set; }
 
-    public virtual DbSet<Submitter> Submitter { get; set; }
-
     public virtual DbSet<TimeSlot> TimeSlot { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Administrator>(entity =>
+        modelBuilder.Entity<Account>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Administ__3214EC07E53402B7");
+            entity.HasKey(e => e.Id).HasName("PK__Account__3214EC07D336F953");
+
+            entity.HasIndex(e => e.Email, "UQ__Account__A9D10534E2C634B3").IsUnique();
 
             entity.Property(e => e.Email)
                 .IsRequired()
@@ -53,7 +53,6 @@ public partial class FestivalZnanostiContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.Password)
                 .IsRequired()
-                .HasMaxLength(1000)
                 .IsUnicode(false);
             entity.Property(e => e.Salt)
                 .IsRequired()
@@ -62,7 +61,7 @@ public partial class FestivalZnanostiContext : DbContext
 
         modelBuilder.Entity<Event>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Event__3214EC0764716887");
+            entity.HasKey(e => e.Id).HasName("PK__Event__3214EC079093E635");
 
             entity.Property(e => e.Equipment)
                 .IsRequired()
@@ -83,35 +82,35 @@ public partial class FestivalZnanostiContext : DbContext
 
             entity.HasOne(d => d.FestivalYear).WithMany(p => p.Event)
                 .HasForeignKey(d => d.FestivalYearId)
-                .HasConstraintName("FK__Event__FestivalY__31EC6D26");
+                .HasConstraintName("FK__Event__FestivalY__32E0915F");
 
             entity.HasOne(d => d.Location).WithMany(p => p.Event)
                 .HasForeignKey(d => d.LocationId)
-                .HasConstraintName("FK__Event__LocationI__300424B4");
+                .HasConstraintName("FK__Event__LocationI__30F848ED");
 
             entity.HasOne(d => d.Submitter).WithMany(p => p.Event)
                 .HasForeignKey(d => d.SubmitterId)
                 .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK__Event__Submitter__30F848ED");
+                .HasConstraintName("FK__Event__Submitter__31EC6D26");
 
             entity.HasMany(d => d.ParticipantsAge).WithMany(p => p.Event)
                 .UsingEntity<Dictionary<string, object>>(
                     "ForAge",
                     r => r.HasOne<ParticipantsAge>().WithMany()
                         .HasForeignKey("ParticipantsAgeId")
-                        .HasConstraintName("FK__ForAge__Particip__3B75D760"),
+                        .HasConstraintName("FK__ForAge__Particip__3C69FB99"),
                     l => l.HasOne<Event>().WithMany()
                         .HasForeignKey("EventId")
-                        .HasConstraintName("FK__ForAge__EventId__3A81B327"),
+                        .HasConstraintName("FK__ForAge__EventId__3B75D760"),
                     j =>
                     {
-                        j.HasKey("EventId", "ParticipantsAgeId").HasName("PK__ForAge__F266F9B5A458F2AA");
+                        j.HasKey("EventId", "ParticipantsAgeId").HasName("PK__ForAge__F266F9B5FF183B3D");
                     });
         });
 
         modelBuilder.Entity<FestivalYear>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Festival__3214EC074856CB52");
+            entity.HasKey(e => e.Id).HasName("PK__Festival__3214EC073066FDBF");
 
             entity.Property(e => e.Description)
                 .IsRequired()
@@ -132,7 +131,7 @@ public partial class FestivalZnanostiContext : DbContext
 
         modelBuilder.Entity<Lecturer>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Lecturer__3214EC07F65D5BCC");
+            entity.HasKey(e => e.Id).HasName("PK__Lecturer__3214EC076127188A");
 
             entity.Property(e => e.Email)
                 .IsRequired()
@@ -156,12 +155,12 @@ public partial class FestivalZnanostiContext : DbContext
 
             entity.HasOne(d => d.Event).WithMany(p => p.Lecturer)
                 .HasForeignKey(d => d.EventId)
-                .HasConstraintName("FK__Lecturer__EventI__37A5467C");
+                .HasConstraintName("FK__Lecturer__EventI__38996AB5");
         });
 
         modelBuilder.Entity<Location>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Location__3214EC07535FD5A5");
+            entity.HasKey(e => e.Id).HasName("PK__Location__3214EC07BE027316");
 
             entity.Property(e => e.Name)
                 .IsRequired()
@@ -175,7 +174,7 @@ public partial class FestivalZnanostiContext : DbContext
 
         modelBuilder.Entity<ParticipantsAge>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Particip__3214EC0707A92B5B");
+            entity.HasKey(e => e.Id).HasName("PK__Particip__3214EC076DC94458");
 
             entity.Property(e => e.Age)
                 .IsRequired()
@@ -188,30 +187,16 @@ public partial class FestivalZnanostiContext : DbContext
                 .IsFixedLength();
         });
 
-        modelBuilder.Entity<Submitter>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__Submitte__3214EC074ECDEBED");
-
-            entity.HasIndex(e => e.Email, "UQ__Submitte__A9D105344BF30770").IsUnique();
-
-            entity.Property(e => e.Email)
-                .IsRequired()
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.Password).IsUnicode(false);
-            entity.Property(e => e.Salt).IsUnicode(false);
-        });
-
         modelBuilder.Entity<TimeSlot>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__TimeSlot__3214EC0717424530");
+            entity.HasKey(e => e.Id).HasName("PK__TimeSlot__3214EC07BC6D4FA4");
 
             entity.Property(e => e.Start).HasColumnType("datetime");
 
             entity.HasOne(d => d.Location).WithMany(p => p.TimeSlot)
                 .HasForeignKey(d => d.LocationId)
                 .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK__TimeSlot__Locati__34C8D9D1");
+                .HasConstraintName("FK__TimeSlot__Locati__35BCFE0A");
 
             entity.HasMany(d => d.Event).WithMany(p => p.TimeSlot)
                 .UsingEntity<Dictionary<string, object>>(
@@ -219,13 +204,13 @@ public partial class FestivalZnanostiContext : DbContext
                     r => r.HasOne<Event>().WithMany()
                         .HasForeignKey("EventId")
                         .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__During__EventId__3F466844"),
+                        .HasConstraintName("FK__During__EventId__403A8C7D"),
                     l => l.HasOne<TimeSlot>().WithMany()
                         .HasForeignKey("TimeSlotId")
-                        .HasConstraintName("FK__During__TimeSlot__3E52440B"),
+                        .HasConstraintName("FK__During__TimeSlot__3F466844"),
                     j =>
                     {
-                        j.HasKey("TimeSlotId", "EventId").HasName("PK__During__565853B3BBDE94ED");
+                        j.HasKey("TimeSlotId", "EventId").HasName("PK__During__565853B317A8335C");
                     });
         });
 

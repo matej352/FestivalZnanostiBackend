@@ -15,8 +15,6 @@ namespace FestivalZnanostiApi.DTOs
 
         public string Summary { get; set; }
 
-        public SubmitterDto Submitter { get; set; }
-
         public int LocationId { get; set; }
 
         public List<LecturerDto> Lecturers { get; set; }

@@ -16,7 +16,7 @@
    "T4TemplatePath": null,
    "Tables": [
       {
-         "Name": "[dbo].[Administrator]",
+         "Name": "[dbo].[Account]",
          "ObjectType": 0
       },
       {
@@ -45,10 +45,6 @@
       },
       {
          "Name": "[dbo].[ParticipantsAge]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[Submitter]",
          "ObjectType": 0
       },
       {

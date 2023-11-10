@@ -2,28 +2,29 @@
 using FestivalZnanostiApi.Enums;
 using FestivalZnanostiApi.Models;
 using FestivalZnanostiApi.Utils;
+using Microsoft.EntityFrameworkCore;
 
 namespace FestivalZnanostiApi.Repositories.impl
 {
-    public class SubmitterRepository : ISubmitterRepository
+    public class AccountRepository : IAccountRepository
     {
 
         private readonly FestivalZnanostiContext _context;
 
-        public SubmitterRepository(FestivalZnanostiContext context)
+        public AccountRepository(FestivalZnanostiContext context)
         {
             _context = context;
         }
 
 
-        public async Task<int> SaveSubmitter(SubmitterDto submitter)
+        public async Task<int> CreateAccount(RegisterDto registerDto)
         {
             string password = null;
             string salt = null;
 
-            if (submitter.Password is not null)
+            if (registerDto.Password is not null)
             {
-                var passwordHashingHandler = new PasswordHashingHandler(submitter.Password);
+                var passwordHashingHandler = new PasswordHashingHandler(registerDto.Password);
                 passwordHashingHandler.CreatePasswordHash(out byte[] passwordHash, out byte[] passwordSalt);
 
                 password = Convert.ToBase64String(passwordHash);
@@ -31,18 +32,25 @@ namespace FestivalZnanostiApi.Repositories.impl
             }
 
 
-            Submitter newSubmitter = new Submitter
+            Account newAccount = new Account
             {
-                Email = submitter.Email,
+                FirstName = registerDto.FirstName,
+                LastName = registerDto.LastName,
+                Email = registerDto.Email,
                 Password = password,
                 Salt = salt,
                 Role = (int)UserRole.Submitter
             };
 
-            _context.Add(newSubmitter);
+            _context.Add(newAccount);
             await _context.SaveChangesAsync();
 
-            return await Task.FromResult(newSubmitter.Id);
+            return await Task.FromResult(newAccount.Id);
+        }
+
+        public async Task<Account?> GetAccountByEmail(string email)
+        {
+            return await _context.Account.FirstOrDefaultAsync(acc => acc.Email == email);
         }
     }
 }
