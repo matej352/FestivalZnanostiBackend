@@ -30,7 +30,7 @@ namespace FestivalZnanostiApi.Controllers
         }
 
 
-        //[Authorize(Roles = "Submitter")]
+        [Authorize(Roles = "Submitter")]
         [HttpPost]
         [Route("Create")]
         public async Task<ActionResult<Event>> CreateEvent(CreateEventDto createEvent)

@@ -3,6 +3,8 @@ using FestivalZnanostiApi.Enums;
 using FestivalZnanostiApi.Models;
 using Microsoft.EntityFrameworkCore;
 using NuGet.Protocol.Core.Types;
+using System;
+using System.Collections.Generic;
 
 namespace FestivalZnanostiApi.Repositories.impl
 {
@@ -61,27 +63,171 @@ namespace FestivalZnanostiApi.Repositories.impl
         public async Task<int> SaveEvent(CreateEventDto createEvent, int submitterId)
         {
 
-            Event newEvent = new Event
+            using (var transaction = _context.Database.BeginTransaction())
             {
-                Title = createEvent.Title,
-                Status = (int)EventStatus.Pending,
-                Type = mapEventType(createEvent.Type),
-                VisitorsCount = createEvent.VisitorsCount,
-                Equipment = createEvent.Equipment,
-                Summary = createEvent.Summary,
-                LocationId = createEvent.LocationId,
-                FestivalYearId = _context.FestivalYear.Where(festivalYear => festivalYear.Active == 1).FirstOrDefault()!.Id,
-                SubmitterId = submitterId,
+                try
+                {
 
-            };
+                    //TODO: Provjerit da je sve validirano, code refactor
 
-            _context.Add(newEvent);
-            await _context.SaveChangesAsync();
 
-            return await Task.FromResult(newEvent.Id);
+                    var location = _context.Location.Where(location => location.Id == createEvent.LocationId).FirstOrDefault();
+                    if (location is null)
+                    {
+                        throw new Exception("Location with provided id does not exists!");
+                    }
+                    var timeSlotsTracked = location.TimeSlotsTracked;
+
+
+
+                    if (createEvent.TimeSlots is null)
+                    {
+                        throw new Exception("Timeslots are required for creating Event!");
+                    }
+
+
+                    //get models from dtos
+                    List<int> timeSlotIds = createEvent.TimeSlots.Select(dto => dto.Id).ToList();
+
+
+                    List<TimeSlot> timeSlots = await _context.TimeSlot
+                        .Where(ts => timeSlotIds.Contains(ts.Id))
+                        .ToListAsync();
+
+
+                    List<int> participantsAgesIds = createEvent.ParticipantsAges.Select(dto => dto.Id).ToList();
+
+
+                    List<ParticipantsAge> participantsAges = await _context.ParticipantsAge
+                        .Where(pa => participantsAgesIds.Contains(pa.Id))
+                        .ToListAsync();
+
+
+                    //That means that Event is in Tehnički muzej ( Kino dvorana (id=2), Izložbena dvorana (id=3) or Dvroište(id=4) )
+                    if (timeSlotsTracked)
+                    {
+                        checkEventTypeAndLocationMatch(location.Id, createEvent.Type);
+                    }
+                    else
+                    {
+                        //check are the selected timeslots actually timeslots for untrackable Events (TimeSlot.LocationId should be null)
+                        bool allHaveNullLocationId = timeSlots.All(ts => ts.LocationId == null);
+
+                        if (!allHaveNullLocationId)
+                        {
+                            throw new Exception("Timeslots do not correspond to the provided location!");
+                        }
+                    }
+
+
+
+                    //Check are timeslots between startDate end endDate of currently active festival year
+
+
+
+                    // Create the Event
+                    var newEvent = new Event
+                    {
+                        Title = createEvent.Title,
+                        Status = (int)EventStatus.Pending,
+                        Type = mapEventType(createEvent.Type),
+                        VisitorsCount = createEvent.VisitorsCount,
+                        Equipment = createEvent.Equipment,
+                        Summary = createEvent.Summary,
+                        LocationId = createEvent.LocationId,
+                        FestivalYearId = _context.FestivalYear.Where(festivalYear => festivalYear.Active == 1).FirstOrDefault()!.Id,
+                        SubmitterId = submitterId,
+                        TimeSlot = (ICollection<TimeSlot>)timeSlots,
+                        ParticipantsAge = (ICollection<ParticipantsAge>)participantsAges
+                    };
+
+                    _context.Event.Add(newEvent);
+                    await _context.SaveChangesAsync();
+
+                    // Create Lecturers
+                    if (createEvent.Lecturers != null)
+                    {
+                        foreach (var lecturerDto in createEvent.Lecturers)
+                        {
+                            var newLecturer = new Lecturer
+                            {
+                                FirstName = lecturerDto.FirstName,
+                                LastName = lecturerDto.LastName,
+                                Phone = lecturerDto.Phone,
+                                Email = lecturerDto.Email,
+                                Type = (int)lecturerDto.Type == 1 ? true : false,
+                                Resume = lecturerDto.Resume,
+                                EventId = newEvent.Id
+                            };
+
+                            _context.Lecturer.Add(newLecturer);
+                        }
+
+                        await _context.SaveChangesAsync();
+                    }
+
+
+
+                    if (timeSlotsTracked)
+                    {
+                        // Update BookedCount for TimeSlots
+                        foreach (var timeSlotDto in createEvent.TimeSlots)
+                        {
+
+                            var timeSlot = _context.TimeSlot
+                                .Where(ts => ts.Id == timeSlotDto.Id && ts.LocationId == createEvent.LocationId)
+                                .FirstOrDefault();
+
+                            if (timeSlot != null)
+                            {
+                                timeSlot.BookedCount++;
+
+                                if (timeSlot.BookedCount > location.ParallelEventCount)
+                                {
+                                    throw new Exception($"Time slot with id {timeSlot.Id} is already full!");
+                                }
+                            }
+
+                        }
+
+                        await _context.SaveChangesAsync();
+                    }
+
+
+
+
+
+
+
+
+
+                    transaction.Commit();
+
+                    return newEvent.Id;
+                }
+                catch (Exception exception)
+                {
+                    transaction.Rollback();
+                    throw new Exception("Problem while creating new Event! \n" + exception.Message);
+                }
+
+
+            }
+
+
         }
 
-
+        private void checkEventTypeAndLocationMatch(int locationId, EventType eventType)
+        {
+            if ((eventType == EventType.Predavanje && locationId == 2) || ((eventType == EventType.Prezentacija || eventType == EventType.Radionica) && (locationId == 3 || locationId == 4)))
+            {
+                //everything ok
+            }
+            else
+            {
+                throw new Exception("Event type an location mismatch!");
+            }
+        }
 
         private string mapEventType(EventType type)
         {
@@ -97,6 +243,17 @@ namespace FestivalZnanostiApi.Repositories.impl
                     throw new Exception("Invalid event type");
             }
         }
+
+
+
+        /*
+         
+        Predavanje --> u kino dvorani
+        Prezentacija ili Radionica --> Izložbena dvorana ili Dvorište
+         
+         
+         
+         */
 
 
 

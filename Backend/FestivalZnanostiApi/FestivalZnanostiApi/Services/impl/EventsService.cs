@@ -25,10 +25,6 @@ namespace FestivalZnanostiApi.Services.impl
 
         public Task<Event> CreateEvent(CreateEventDto createEvent)
         {
-
-            //var submitterId = _submitterService.CreateSubmitter(createEvent.Submitter).Result; TO JE ZAPRAVO REGISTRATION
-
-
             var eventId = _eventsRepository.SaveEvent(createEvent, _userContext.Id).Result;
 
             var _event = _eventsRepository.GetEvent(eventId);

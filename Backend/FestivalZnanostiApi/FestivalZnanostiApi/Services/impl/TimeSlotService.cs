@@ -19,23 +19,24 @@ namespace FestivalZnanostiApi.Services.impl
         public const int WINDOW_END = 11;
 
 
+        // TODO: Ovo treba dohvatiti iz baze (dohvati lokacije koje TimeSlotsTracked = 1)
         private readonly List<LocationTemp> _LocationTempList = new List<LocationTemp>()
         {
             new LocationTemp
             {
-                Id = 1,
+                Id = 2,
                 Name = "Kino dvorana",
                 EventDuration = 45
             },
             new LocationTemp
             {
-                Id = 2,
+                Id = 3,
                 Name = "Izložbena dvorana",
                 EventDuration = 30
             },
              new LocationTemp
             {
-                Id = 3,
+                Id = 4,
                 Name = "Dvorište",
                 EventDuration = 30
             }
