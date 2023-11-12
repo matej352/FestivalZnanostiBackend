@@ -37,6 +37,7 @@ namespace FestivalZnanostiApi.Repositories.impl
         {
             var events = await _context.Event
                 .Include(e => e.Location)
+                .Include(e => e.Location.ParentLocation)
                 .Include(e => e.Submitter)
                 .Include(e => e.ParticipantsAge)
                 .Include(e => e.Lecturer)
@@ -50,6 +51,7 @@ namespace FestivalZnanostiApi.Repositories.impl
         {
             var events = await _context.Event
                 .Include(e => e.Location)
+                .Include(e => e.Location.ParentLocation)
                 .Include(e => e.Submitter)
                 .Include(e => e.ParticipantsAge)
                 .Include(e => e.Lecturer)

@@ -36,7 +36,13 @@ namespace FestivalZnanostiApi.DTOs.Extensions
                 Equipment = e.Equipment,
                 Summary = e.Summary,
                 SubmitterEmail = e.Submitter.Email,
-                Location = e.Location.Name,
+                Location = new LocationDto()
+                {
+                    Id = e.LocationId,
+                    Name = e.Location.Name,
+                    ParentLocationId = e.Location.ParentLocationId,
+                    ParentLocationName = e.Location.ParentLocation?.Name,
+                },
                 Lecturers = e.Lecturer.Select(l => l.AsLecturerDto()).ToList(),
                 ParticipantsAges = e.ParticipantsAge.Select(pa => pa.AsParticipantsAgeDto()).ToList(),
                 TimeSlots = e.TimeSlot.Select(ts => ts.AsTimeSlotDto()).ToList()

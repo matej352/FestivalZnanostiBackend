@@ -19,7 +19,7 @@ namespace FestivalZnanostiApi.DTOs
 
         public string? SubmitterEmail { get; set; }  // Only admin can see email of event submitter
 
-        public string Location { get; set; }
+        public LocationDto Location { get; set; }
 
         public List<LecturerDto> Lecturers { get; set; }
 

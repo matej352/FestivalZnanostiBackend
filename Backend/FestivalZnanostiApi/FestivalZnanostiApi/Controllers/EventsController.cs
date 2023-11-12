@@ -63,14 +63,14 @@ namespace FestivalZnanostiApi.Controllers
 
         [Authorize(Roles = "Submitter")]
         [HttpGet]
-        [Route("GetSubmittersEvents/{id}")]
-        public async Task<ActionResult<IEnumerable<EventDto>>> GetSubmittersEvents(int id)
+        [Route("GetSubmittersEvents")]
+        public async Task<ActionResult<IEnumerable<EventDto>>> GetSubmittersEvents(int submitterId)
         {
-            if (_userContext.Id != id)
+            if (_userContext.Id != submitterId)
             {
                 return Forbid();
             }
-            var events = await _eventsService.GetSubmittersEvents(id);
+            var events = await _eventsService.GetSubmittersEvents(submitterId);
 
             return Ok(events);
         }

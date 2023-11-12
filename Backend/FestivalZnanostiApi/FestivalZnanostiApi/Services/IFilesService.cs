@@ -5,7 +5,7 @@ namespace FestivalZnanostiApi.Services
     public interface IFilesService
     {
 
-        public byte[] GenerateEventSummary(int EventId);
+        public Task<byte[]> GenerateEventsSummary();
 
         public byte[] GenerateFestivalTable(int FestivalYear);
     }

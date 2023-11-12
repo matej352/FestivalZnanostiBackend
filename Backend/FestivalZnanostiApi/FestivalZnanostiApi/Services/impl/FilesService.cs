@@ -1,6 +1,8 @@
 ﻿using DinkToPdf;
 using DinkToPdf.Contracts;
+using FestivalZnanostiApi.DTOs;
 using PdfSharpCore.Pdf;
+using System.Text;
 using TheArtOfDev.HtmlRenderer.PdfSharp;
 
 namespace FestivalZnanostiApi.Services.impl
@@ -9,15 +11,17 @@ namespace FestivalZnanostiApi.Services.impl
     {
 
         private readonly IConverter _converter;
+        private readonly IEventsService _eventsService;
 
 
-        public FilesService(IConverter converter)
+        public FilesService(IConverter converter, IEventsService eventsService)
         {
             _converter = converter;
+            _eventsService = eventsService;
         }
 
 
-        public byte[] GenerateEventSummary(int EventId)
+        public async Task<byte[]> GenerateEventsSummary()
         {
 
             var blobalSettings = new GlobalSettings
@@ -31,8 +35,10 @@ namespace FestivalZnanostiApi.Services.impl
             };
 
 
+            var events = await _eventsService.GetEvents();
 
-            string htmlContent = "<h3 style=\"font-family: 'Arial'\">Mikropropagacija šumskih vrsta drveća u Hrvatskom šumarskom institutu</h3>\r\n    <h3 style=\"font-family: 'Arial'; display: inline\">Datum:</h3>\r\n    <span style=\"font-family: 'Arial'; margin-left:5px\">08. travanj 2019., 10.30 – 11.00</span>\r\n<br>\r\n<br>\r\n<h3 style=\"font-family: 'Arial'; display: inline\">Lokacija: </h3>\r\n<span style=\"font-family: 'Arial'\">Tehnički muzej „Nikola Tesla“, Savska cesta 18</span>\r\n<br>\r\n<br>\r\n<h3 style=\"font-family: 'Arial'; display: inline\">Publika: </h3>\r\n<span style=\"font-family: 'Arial'\">S1, S2, S3</span>\r\n<br>\r\n<br>\r\n<h3 style=\"font-family: 'Arial'; display: inline\">Vrsta događaja: </h3>\r\n<span style=\"font-family: 'Arial'\">Radionica</span>\r\n<br>\r\n<br>\r\n<h3 style=\"font-family: 'Arial'\">Sažetak:</h3>\r\n<p style=\"font-family: 'Arial'; text-align: justify; line-height:25px\">Jedan od temeljnih zadataka šumara je izmjeriti stabla u šumi. To znači da se stablima prvenstveno mjere ukupna visina te debljina debla (prsni promjer stabla) te izračunavaju veličine poput obujma debla, grana, krošnje itd. Na radionici će biti pokazano kako se šumarskim instrumentima mjere navedene dimenzije. Upoznaj se s tehnikama mjerenja, uzmi u ruke promjerku, visinomjer te probaj sam/sama izmjeriti te izračunati dimenzije stabala.</p>\r\n<br>\r\n<br>\r\n<h3 style=\"font-family: 'Arial'\">Biografija:</h3>\r\n<p style=\"font-family: 'Arial'; text-align: justify; line-height:25px\">Sanja Bogunović rođena je 03. prosinca 1987. godine u Sisku, Republika Hrvatska. Osnovnu školu završila je u Jabukovcu, a opću gimnaziju u Srednjoj školi Petrinja. Nakon toga upisala je preddiplomski studij šumarstva na Šumarskom fakultetu, Sveučilište u Zagrebu, i po završetku istoga upisuje diplomski studij, smjer: Uzgajanje i uređivanje šuma s lovnim gospodarenjem. 2012. godine diplomirala je na temu „Varijabilnost fenofaza cvjetanja poljskog jasena (Fraxinus angustifolia Vahl) u klonskoj sjemenskoj plantaži“. Od studenog 2013. do listopada 2014. godine radila je kao asistentica na projektu financiranom iz sredstava Europske unije „E4E – Education for Employment“ u Centru za šljivu i kesten, Donja Bačuga. 1. siječnja 2015. godine započinje raditi na Hrvatskom šumarskom institutu, Zavod za genetiku, oplemenjivanje šumskog drveća i sjemenarstvo, kao asistent na projektu Hrvatske zaklade za znanost te upisuje poslijediplomski doktorski studij Šumarstvo i drvna tehnologija na Šumarskom fakultetu u Zagrebu. Bila je suradnik na projektu HRZZ-a „Conservation of genetic resources of forest trees in light of climate changes“ te sudjeluje na projektima OKFŠ-a „Osnivanje pokusa za provođenje uzgojnih i genetsko meliorativnih zahvata u mladim sastojinama hrasta lužnjaka kao temelj za gospodarenje\r\nbudućim sjemenskim sastojinama“ i HRZZ-a „Dinamika plodonošenja i očuvanja genofonda hrasta lužnjaka (Quercus robur L.) i obične bukve (Fagus sylvatica L.) u svjetlu klimatskih promjena“. Članica je Hrvatskog šumarskog društva i Hrvatske udruge za arborikulturu.</p><div style=\"page-break-before: always;\">\r\nIde gas ovo je na drugoj stranici\r\n</div>";
+            string htmlContent = createEventsSummaryHtmlContent(events);
+
             var objectSettings = new ObjectSettings
             {
                 PagesCount = true,
@@ -49,6 +55,96 @@ namespace FestivalZnanostiApi.Services.impl
             var file = _converter.Convert(pdf);
 
             return file;
+        }
+
+        private string createEventsSummaryHtmlContent(IEnumerable<EventDto> events)
+        {
+            var sb = new StringBuilder();
+
+            foreach (var eventDto in events)
+            {
+                sb.Append(@$"
+                                <h3 style=""font-family: 'Arial'"">{eventDto.Title}</h3>
+                                <h3 style=""font-family: 'Arial'; display: inline"">Datum:</h3>
+                                <span style=""font-family: 'Arial'; margin-left:5px"">08. travanj 2019., 10.30 – 11.00</span>
+                                <br>
+                                <br>
+                               
+                               
+
+
+                ");
+
+                //TODO: datume
+
+
+                var lokacija = "";
+                if (eventDto.Location.ParentLocationId is not null)
+                {
+                    lokacija += eventDto.Location.ParentLocationName + " | ";
+                }
+                lokacija += eventDto.Location.Name;
+
+                sb.Append(@$"
+                                <h3 style=""font-family: 'Arial'; display: inline"">Lokacija: </h3>
+                                <span style=""font-family: 'Arial'"">{lokacija}</span>
+                                <br>
+                                <br>
+                               
+
+
+                ");
+
+                var publika = "";
+                foreach (var participantAge in eventDto.ParticipantsAges)
+                {
+                    publika += participantAge.Label + ", ";
+                }
+                if (publika != "")
+                {
+                    publika = publika.Substring(0, publika.LastIndexOf(","));
+                }
+
+
+                sb.Append($@"
+                                <h3 style=""font-family: 'Arial'; display: inline"">Publika: </h3>
+                                <span style=""font-family: 'Arial'"">{publika}</span>
+                                <br>
+                                <br>
+                ");
+
+
+                sb.Append($@"
+                                <h3 style=""font-family: 'Arial'; display: inline"">Vrsta događaja: </h3>
+                                <span style=""font-family: 'Arial'"">{eventDto.Type}</span>
+                                <br>
+                                <br>
+                                <h3 style=""font-family: 'Arial'"">Sažetak:</h3>
+                                <p style=""font-family: 'Arial'; text-align: justify; line-height:25px"">{eventDto.Summary}</p>
+                                <br>
+                                <br>
+                                <h3 style=""font-family: 'Arial'"">Biografija:</h3>
+
+                ");
+
+
+
+                foreach (var lecturer in eventDto.Lecturers)
+                {
+                    sb.Append(@$"
+                                <p style=""font-family: 'Arial'; text-align: justify; line-height:25px"">{lecturer.FirstName} {lecturer.LastName}</p>
+                                <p style=""font-family: 'Arial'; text-align: justify; line-height:25px"">{lecturer.Resume}</p>
+                                <br>                              
+                    ");
+                }
+
+                sb.AppendLine("<div style=\"page-break-before: always;\"></div>");
+            }
+
+            sb.Length = sb.Length - 1;      //ovo ne radi, provjerit zašto
+
+
+            return sb.ToString();
         }
 
         public byte[] GenerateFestivalTable(int FestivalYear)
@@ -85,5 +181,8 @@ namespace FestivalZnanostiApi.Services.impl
 
             return file;
         }
+
+
+
     }
 }
