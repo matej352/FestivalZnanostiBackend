@@ -11,6 +11,8 @@ namespace FestivalZnanostiApi.Repositories
 
         public Task<IEnumerable<Event>> GetEvents();
 
+        public Task<IEnumerable<Event>> GetEventsForFestivalYear(int festivalYearId);
+
         public Task<IEnumerable<Event>> GetEvents(int submitterId);
     }
 }

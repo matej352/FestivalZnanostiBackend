@@ -49,11 +49,11 @@ namespace FestivalZnanostiApi.Controllers
 
         //[Authorize(Roles = "Administrator")]
         [HttpGet]
-        [Route("GetEvents")]
-        public async Task<ActionResult<IEnumerable<EventDto>>> GetEvents()
+        [Route("GetAllEvents")]
+        public async Task<ActionResult<IEnumerable<EventDto>>> GetAllEvents()
         {
 
-            var events = await _eventsService.GetEvents();
+            var events = await _eventsService.GetAllEvents();
 
             return Ok(events);
 

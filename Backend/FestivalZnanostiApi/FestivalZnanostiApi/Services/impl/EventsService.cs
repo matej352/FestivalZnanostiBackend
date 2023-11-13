@@ -3,6 +3,7 @@ using FestivalZnanostiApi.DTOs.Extensions;
 using FestivalZnanostiApi.Middlewares.UserContext;
 using FestivalZnanostiApi.Models;
 using FestivalZnanostiApi.Repositories;
+using FestivalZnanostiApi.Servicess;
 using NuGet.Protocol.Core.Types;
 
 namespace FestivalZnanostiApi.Services.impl
@@ -16,11 +17,14 @@ namespace FestivalZnanostiApi.Services.impl
 
         private readonly IAccountService _submitterService;
 
-        public EventsService(IEventsRepository eventsRepository, IAccountService submitterService, UserContext userContext)
+        private readonly IFestivalYearService _festivalYearService;
+
+        public EventsService(IEventsRepository eventsRepository, IAccountService submitterService, UserContext userContext, IFestivalYearService festivalYearService)
         {
             _eventsRepository = eventsRepository;
             _submitterService = submitterService;
             _userContext = userContext;
+            _festivalYearService = festivalYearService;
         }
 
         public Task<Event> CreateEvent(CreateEventDto createEvent)
@@ -35,7 +39,22 @@ namespace FestivalZnanostiApi.Services.impl
 
         }
 
-        public async Task<IEnumerable<EventDto>> GetEvents()
+        public async Task<IEnumerable<EventDto>> GetEvents(int? festivalYearId)
+        {
+
+            if (festivalYearId == null)
+            {
+                festivalYearId = _festivalYearService.GetActiveFestivalYear().Id;
+            }
+            var events = await _eventsRepository.GetEventsForFestivalYear((int)festivalYearId);
+
+
+            List<EventDto> eventDtoList = events.Select(e => e.AsEventDto()).ToList();
+
+            return eventDtoList;
+        }
+
+        public async Task<IEnumerable<EventDto>> GetAllEvents()
         {
             var events = await _eventsRepository.GetEvents();
 

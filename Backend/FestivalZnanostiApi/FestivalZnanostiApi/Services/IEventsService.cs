@@ -8,7 +8,10 @@ namespace FestivalZnanostiApi.Services
     {
         public Task<Event> CreateEvent(CreateEventDto createEvent);
 
-        public Task<IEnumerable<EventDto>> GetEvents();
+        public Task<IEnumerable<EventDto>> GetEvents(int? festivalYearId);
+
+
+        public Task<IEnumerable<EventDto>> GetAllEvents();
 
         public Task<IEnumerable<EventDto>> GetSubmittersEvents(int submitterId);
     }

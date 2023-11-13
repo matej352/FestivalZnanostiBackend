@@ -13,6 +13,8 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using FluentValidation.AspNetCore;
+using FestivalZnanostiApi.DTOs.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -61,6 +63,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
+
+
 builder.Services.AddDbContext<FestivalZnanostiContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("FestivalZnanosti")));
 
 // Services
@@ -71,6 +76,9 @@ builder.Services.AddTransient<IEventsService, EventsService>();
 builder.Services.AddTransient<IAccountService, AccountService>();
 builder.Services.AddTransient<IFilesService, FilesService>();
 builder.Services.AddTransient<ILocationService, LocationService>();
+
+// Validators
+builder.Services.AddScoped<CreateFestivalYearDtoValidator>();
 
 
 

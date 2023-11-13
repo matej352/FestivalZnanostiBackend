@@ -47,6 +47,22 @@ namespace FestivalZnanostiApi.Repositories.impl
             return events;
         }
 
+        public async Task<IEnumerable<Event>> GetEventsForFestivalYear(int festivalYearId)
+        {
+            var events = await _context.Event
+                .Include(e => e.Location)
+                .Include(e => e.Location.ParentLocation)
+                .Include(e => e.Submitter)
+                .Include(e => e.ParticipantsAge)
+                .Include(e => e.Lecturer)
+                .Include(e => e.TimeSlot)
+                .Where(e => e.FestivalYearId == festivalYearId)
+                .ToListAsync();
+
+            return events;
+        }
+
+
         public async Task<IEnumerable<Event>> GetEvents(int submitterId)
         {
             var events = await _context.Event

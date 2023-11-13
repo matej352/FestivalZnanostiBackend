@@ -1,4 +1,5 @@
 using FestivalZnanostiApi.DTOs;
+using FestivalZnanostiApi.DTOs.Validators;
 using FestivalZnanostiApi.Models;
 using FestivalZnanostiApi.Servicess;
 using FestivalZnanostiApi.Servicess.impl;
@@ -13,11 +14,13 @@ namespace FestivalZnanostiApi.Controllers
 
         private readonly IFestivalYearService _festivalYearService;
         private readonly ILogger<FestivalYearController> _logger;
+        private readonly CreateFestivalYearDtoValidator _validations;
 
-        public FestivalYearController(ILogger<FestivalYearController> logger, IFestivalYearService festivalYearService)
+        public FestivalYearController(ILogger<FestivalYearController> logger, IFestivalYearService festivalYearService, CreateFestivalYearDtoValidator validations)
         {
             _logger = logger;
             _festivalYearService = festivalYearService;
+            _validations = validations;
 
         }
 
@@ -30,6 +33,7 @@ namespace FestivalZnanostiApi.Controllers
         }
 
 
+
         [HttpGet]
         [Route("FestivalYear")]
         public Task<FestivalYearDto> GetFestivalYear(int festivalYearId)
@@ -39,13 +43,19 @@ namespace FestivalZnanostiApi.Controllers
         }
 
 
-
+        //[Authorize(Roles = "Administrator")]
         [HttpPost]
         [Route("Create")]
-        public Task<FestivalYearDto> CreateFestivalYear(CreateFestivalYearDto FestivalYear)
+        public async Task<ActionResult<FestivalYearDto>> CreateFestivalYear(CreateFestivalYearDto FestivalYear)
         {
+            var validationResult = await _validations.ValidateAsync(FestivalYear);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors);
+            }
+
             var newFestivalYear = _festivalYearService.CreateFestivalYear(FestivalYear);
-            return newFestivalYear;
+            return Ok(newFestivalYear);
         }
     }
 }

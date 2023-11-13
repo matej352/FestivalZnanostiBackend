@@ -24,9 +24,9 @@ namespace FestivalZnanostiApi.Controllers
         //[Authorize(Roles = "Administrator")]
         [HttpGet]
         [Route("EventSummary")]
-        public async Task<IActionResult> GenerateEventsSummary()
+        public async Task<IActionResult> GenerateEventsSummary(int? festivalYearId = null)
         {
-            var document = await _filesService.GenerateEventsSummary();
+            var document = await _filesService.GenerateEventsSummary(festivalYearId);
 
             // Set the Content-Disposition header to force download with a specific file name
             var contentDisposition = new ContentDisposition
@@ -47,14 +47,14 @@ namespace FestivalZnanostiApi.Controllers
         //[Authorize(Roles = "Administrator")]
         [HttpGet]
         [Route("FestivalTable")]
-        public IActionResult GenerateFestivalTable(int FestivalYear)
+        public async Task<IActionResult> GenerateFestivalTable(int? festivalYear = null)
         {
-            var document = _filesService.GenerateFestivalTable(FestivalYear);
+            var document = await _filesService.GenerateFestivalTable(festivalYear);
 
             // Set the Content-Disposition header to force download with a specific file name
             var contentDisposition = new ContentDisposition
             {
-                FileName = $"FestivalTable_{FestivalYear}.pdf",
+                FileName = $"FestivalTable.pdf",
                 Inline = false,  // Set to false to force download
             };
 

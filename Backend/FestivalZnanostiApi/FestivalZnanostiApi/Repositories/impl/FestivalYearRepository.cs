@@ -18,6 +18,13 @@ namespace FestivalZnanostiApi.Repositories.impl
         public async Task<int> CreateFestivalYear(CreateFestivalYearDto festivalYear)
         {
 
+            var correspondingFestivalYear = await _context.FestivalYear.Where(fy => fy.Year == festivalYear.Year).FirstOrDefaultAsync();
+
+            if (correspondingFestivalYear != null)
+            {
+                throw new Exception($"Festival year for year {correspondingFestivalYear.Year} already exists!");
+            }
+
             FestivalYear newFestivalYear = new FestivalYear
             {
                 Year = festivalYear.Year,
