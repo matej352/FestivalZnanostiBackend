@@ -100,5 +100,18 @@ namespace FestivalZnanostiApi.DTOs.Extensions
 
 
 
+        public static LocationDto AsLocationDto(this Location l)
+        {
+            return new LocationDto
+            {
+                Id = l.Id,
+                Name = l.Name,
+                ParentLocationId = l.ParentLocationId,
+                ParentLocationName = l.ParentLocation?.Name
+            };
+        }
+
+
+
     }
 }

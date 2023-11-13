@@ -39,6 +39,17 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     });
 
 
+builder.Services.AddCors(c =>
+{
+    c.AddPolicy("CorsPolicy", options =>
+                options.AllowCredentials()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader()
+                       .WithOrigins("http://localhost:3000")
+                //.AllowAnyOrigin()
+                );
+});
+
 
 builder.Services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
 builder.Services.AddSingleton<UserContext>(); // Register UserContext as a singleton
@@ -59,7 +70,7 @@ builder.Services.AddTransient<ITimeSlotService, TimeSlotService>();
 builder.Services.AddTransient<IEventsService, EventsService>();
 builder.Services.AddTransient<IAccountService, AccountService>();
 builder.Services.AddTransient<IFilesService, FilesService>();
-
+builder.Services.AddTransient<ILocationService, LocationService>();
 
 
 
@@ -69,6 +80,7 @@ builder.Services.AddTransient<IAuthRepository, AuthRepository>();
 builder.Services.AddTransient<ITimeSlotRepository, TimeSlotRepository>();
 builder.Services.AddTransient<IEventsRepository, EventsRepository>();
 builder.Services.AddTransient<IAccountRepository, AccountRepository>();
+builder.Services.AddTransient<ILocationRepository, LocationRepository>();
 
 
 var app = builder.Build();
@@ -82,6 +94,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("CorsPolicy");
 
 app.UseHttpsRedirection();
 
