@@ -4,6 +4,8 @@ namespace FestivalZnanostiApi.Services
 {
     public interface ILocationService
     {
+        public Task<IEnumerable<LocationDto>> GetLocations();
+
         public Task<IEnumerable<LocationDto>> GetParentLocations();
 
         public Task<IEnumerable<LocationDto>> GetChildLocations(int parentId);

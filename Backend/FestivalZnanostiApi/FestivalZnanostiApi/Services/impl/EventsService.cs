@@ -44,7 +44,7 @@ namespace FestivalZnanostiApi.Services.impl
 
             if (festivalYearId == null)
             {
-                festivalYearId = _festivalYearService.GetActiveFestivalYear().Id;
+                festivalYearId = (await _festivalYearService.GetActiveFestivalYear()).Id;
             }
             var events = await _eventsRepository.GetEventsForFestivalYear((int)festivalYearId);
 
@@ -53,6 +53,20 @@ namespace FestivalZnanostiApi.Services.impl
 
             return eventDtoList;
         }
+
+        public async Task<IEnumerable<PdfEventDto>> GetPdfEvents(int? festivalYearId)
+        {
+            if (festivalYearId == null)
+            {
+                festivalYearId = (await _festivalYearService.GetActiveFestivalYear()).Id;
+            }
+            var events = await _eventsRepository.GetEventsForFestivalYear((int)festivalYearId);
+
+            List<PdfEventDto> pdfEventDtoList = events.Select(e => e.AsPdfEventDto()).ToList();
+
+            return pdfEventDtoList;
+        }
+
 
         public async Task<IEnumerable<EventDto>> GetAllEvents()
         {
@@ -71,5 +85,7 @@ namespace FestivalZnanostiApi.Services.impl
 
             return eventDtoList;
         }
+
+
     }
 }

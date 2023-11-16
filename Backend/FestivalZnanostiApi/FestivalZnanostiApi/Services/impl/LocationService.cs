@@ -42,6 +42,15 @@ namespace FestivalZnanostiApi.Services.impl
 
             return newLocation!.AsLocationDto();
         }
+        public async Task<IEnumerable<LocationDto>> GetLocations()
+        {
+            var locations = await _locationRepository.GetLocations();
+
+            List<LocationDto> locationDtoList = locations.Select(l => l.AsLocationDto()).ToList();
+
+            return locationDtoList;
+        }
+
 
         public async Task<IEnumerable<LocationDto>> GetChildLocations(int parentLocationId)
         {

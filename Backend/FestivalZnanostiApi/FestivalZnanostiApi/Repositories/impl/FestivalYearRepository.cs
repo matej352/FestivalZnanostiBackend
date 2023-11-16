@@ -56,9 +56,9 @@ namespace FestivalZnanostiApi.Repositories.impl
             return await Task.FromResult(newFestivalYear.Id);
         }
 
-        public FestivalYearDto FindActiveFestivalYear()
+        public async Task<FestivalYearDto> FindActiveFestivalYear()
         {
-            FestivalYear? festival = _context.FestivalYear.Where(fy => fy.Active == 1).FirstOrDefault();
+            FestivalYear? festival = await _context.FestivalYear.Where(fy => fy.Active == 1).FirstOrDefaultAsync();
             if (festival is null)
             {
                 throw new Exception($"There is no active FestivalYear");

@@ -5,6 +5,8 @@ namespace FestivalZnanostiApi.Repositories
 {
     public interface ILocationRepository
     {
+        public Task<IEnumerable<Location>> GetLocations();
+
         public Task<IEnumerable<Location>> GetParentLocations();
 
         public Task<IEnumerable<Location>> GetChildLocations(int parentId);

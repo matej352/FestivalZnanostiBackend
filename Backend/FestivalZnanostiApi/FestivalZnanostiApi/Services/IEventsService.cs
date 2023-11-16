@@ -10,6 +10,7 @@ namespace FestivalZnanostiApi.Services
 
         public Task<IEnumerable<EventDto>> GetEvents(int? festivalYearId);
 
+        public Task<IEnumerable<PdfEventDto>> GetPdfEvents(int? festivalYearId);
 
         public Task<IEnumerable<EventDto>> GetAllEvents();
 

@@ -66,7 +66,9 @@ builder.Services.AddSwaggerGen();
 
 
 
-builder.Services.AddDbContext<FestivalZnanostiContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("FestivalZnanosti")));
+builder.Services.AddDbContext<FestivalZnanostiContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("FestivalZnanosti")),
+    ServiceLifetime.Transient);
 
 // Services
 builder.Services.AddTransient<IFestivalYearService, FestivalYearService>();

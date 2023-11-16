@@ -50,6 +50,24 @@ namespace FestivalZnanostiApi.DTOs.Extensions
         }
 
 
+        public static PdfEventDto AsPdfEventDto(this Event e)
+        {
+            return new PdfEventDto
+            {
+                Id = e.Id,
+                Title = e.Title,
+                Type = e.Type,
+                VisitorsCount = e.VisitorsCount,
+                Summary = e.Summary,
+                Location = e.Location,
+                Lecturers = e.Lecturer.Select(l => l.AsLecturerDto()).ToList(),
+                ParticipantsAges = e.ParticipantsAge.Select(pa => pa.AsParticipantsAgeDto()).ToList(),
+                TimeSlots = e.TimeSlot.Select(ts => ts.AsTimeSlotDto()).ToList()
+            };
+        }
+
+
+
 
         public static LecturerDto AsLecturerDto(this Lecturer l)
         {

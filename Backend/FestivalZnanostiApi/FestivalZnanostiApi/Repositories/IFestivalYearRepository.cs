@@ -13,6 +13,6 @@ namespace FestivalZnanostiApi.Repositories
 
         public Task<FestivalYear> FindById(int id);
 
-        public FestivalYearDto FindActiveFestivalYear();
+        public Task<FestivalYearDto> FindActiveFestivalYear();
     }
 }

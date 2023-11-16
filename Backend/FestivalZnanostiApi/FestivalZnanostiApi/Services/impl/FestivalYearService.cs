@@ -48,9 +48,9 @@ namespace FestivalZnanostiApi.Servicess.impl
             return _repo.GetFestivalYears();
         }
 
-        public FestivalYearDto GetActiveFestivalYear()
+        public async Task<FestivalYearDto> GetActiveFestivalYear()
         {
-            return _repo.FindActiveFestivalYear();
+            return await _repo.FindActiveFestivalYear();
         }
 
         public Task<FestivalYearDto> GetFestivalYear(int festivalYearId)

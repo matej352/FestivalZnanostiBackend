@@ -22,6 +22,14 @@ namespace FestivalZnanostiApi.Repositories.impl
             return await _context.Location.FindAsync(locationId);
         }
 
+
+
+        public async Task<IEnumerable<Location>> GetLocations()
+        {
+            return await _context.Location.ToListAsync();
+        }
+
+
         public async Task<IEnumerable<Location>> GetChildLocations(int parentId)
         {
             return await _context.Location.Where(l => l.ParentLocationId == parentId).ToListAsync();
@@ -118,5 +126,6 @@ namespace FestivalZnanostiApi.Repositories.impl
 
             }
         }
+
     }
 }

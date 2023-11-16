@@ -125,6 +125,8 @@ namespace FestivalZnanostiApi.Repositories.impl
                     if (timeSlotsTracked)
                     {
                         checkEventTypeAndLocationMatch(location.Id, createEvent.Type);
+
+                        //  TODO: provjerit pripadaju li timeslotovi lokaciji sa createEvent.LocationId
                     }
                     else
                     {
