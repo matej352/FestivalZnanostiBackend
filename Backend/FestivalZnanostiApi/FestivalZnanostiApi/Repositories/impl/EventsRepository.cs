@@ -245,7 +245,7 @@ namespace FestivalZnanostiApi.Repositories.impl
             }
             else
             {
-                throw new Exception("Event type an location mismatch!");
+                throw new Exception("Event type and location mismatch!");
             }
         }
 

@@ -10,6 +10,7 @@ using FestivalZnanostiApi.Services;
 using FestivalZnanostiApi.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using FestivalZnanostiApi.Middlewares.UserContext;
+using FestivalZnanostiApi.Enums;
 
 namespace FestivalZnanostiApi.Controllers
 {
@@ -29,17 +30,25 @@ namespace FestivalZnanostiApi.Controllers
             _userContext = userContext;
         }
 
-
-        [Authorize(Roles = "Submitter")]
+        /// <summary>
+        /// Kreiranje eventa od strane submittera ili admina (admin jedini smije stvarati evente tipa Izložba)
+        /// </summary>
+        /// <param name="createEvent">Podaci eventa koji se stvara</param>
+        /// <returns></returns>
+        [Authorize]
         [HttpPost]
         [Route("Create")]
         public async Task<ActionResult<Event>> CreateEvent(CreateEventDto createEvent)
         {
 
+            if (createEvent.Type == EventType.Izlozba && _userContext.Role != UserRole.Administrator)
+            {
+                return Forbid("You don't have permission to create event of type Izložba!");
+            }
+
             var newEvent = await _eventsService.CreateEvent(createEvent);
 
             return Ok(newEvent);
-
 
         }
 
