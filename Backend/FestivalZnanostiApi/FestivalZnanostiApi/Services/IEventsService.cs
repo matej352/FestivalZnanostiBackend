@@ -15,5 +15,9 @@ namespace FestivalZnanostiApi.Services
         public Task<IEnumerable<EventDto>> GetAllEvents();
 
         public Task<IEnumerable<EventDto>> GetSubmittersEvents(int submitterId);
+
+        public Task<AccountDto> GetEventSubmitter(int eventId);
+
+        public Task<Event> UpdateEvent(UpdateEventDto updateEvent);
     }
 }

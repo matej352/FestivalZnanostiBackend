@@ -88,7 +88,7 @@ namespace FestivalZnanostiApi.Repositories.impl
 
                     //TODO: Provjerit da je sve validirano, code refactor
 
-
+                    //  VALIDATION - location with provided id exists
                     var location = _context.Location.Where(location => location.Id == createEvent.LocationId).FirstOrDefault();
                     if (location is null)
                     {
@@ -97,7 +97,7 @@ namespace FestivalZnanostiApi.Repositories.impl
                     var timeSlotsTracked = location.TimeSlotsTracked;
 
 
-
+                    //  VALIDATION - event timeslots are provided
                     if (createEvent.TimeSlots is null)
                     {
                         throw new Exception("Timeslots are required for creating Event!");
@@ -106,22 +106,16 @@ namespace FestivalZnanostiApi.Repositories.impl
 
                     //get models from dtos
                     List<int> timeSlotIds = createEvent.TimeSlots.Select(dto => dto.Id).ToList();
-
-
                     List<TimeSlot> timeSlots = await _context.TimeSlot
                         .Where(ts => timeSlotIds.Contains(ts.Id))
                         .ToListAsync();
-
-
                     List<int> participantsAgesIds = createEvent.ParticipantsAges.Select(dto => dto.Id).ToList();
-
-
                     List<ParticipantsAge> participantsAges = await _context.ParticipantsAge
                         .Where(pa => participantsAgesIds.Contains(pa.Id))
                         .ToListAsync();
 
 
-                    //That means that Event is in Tehnički muzej ( Kino dvorana (id=2), Izložbena dvorana (id=3) or Dvroište(id=4) )
+                    //  VALIDATION - That means that Event is in Tehnički muzej ( Kino dvorana (id=2), Izložbena dvorana (id=3) or Dvroište(id=4) )
                     if (timeSlotsTracked)
                     {
                         checkEventTypeAndLocationMatch(location.Id, createEvent.Type);
@@ -141,7 +135,7 @@ namespace FestivalZnanostiApi.Repositories.impl
 
 
 
-                    //Check are timeslots between startDate end endDate of currently active festival year
+                    //Check are timeslots between startDate end endDate of currently active festival year ILI DA ROKNEM DA SVAKI TIMESLOT IMA ID FESTIVALA
 
 
 
@@ -214,13 +208,6 @@ namespace FestivalZnanostiApi.Repositories.impl
                     }
 
 
-
-
-
-
-
-
-
                     transaction.Commit();
 
                     return newEvent.Id;
@@ -262,6 +249,147 @@ namespace FestivalZnanostiApi.Repositories.impl
                 default:
                     throw new Exception("Invalid event type");
             }
+        }
+
+        public async Task<int> UpdateEvent(UpdateEventDto updateEvent)
+        {
+            using (var transaction = _context.Database.BeginTransaction())
+            {
+                try
+                {
+
+                    //  VALIDATION - location with provided id exists
+                    var location = _context.Location.Where(location => location.Id == updateEvent.LocationId).FirstOrDefault();
+                    if (location is null)
+                    {
+                        throw new Exception("Location with provided id does not exists!");
+                    }
+                    var timeSlotsTracked = location.TimeSlotsTracked;
+
+
+                    // Retrieve the existing event
+                    var existingEvent = await _context.Event
+                        .Include(e => e.TimeSlot)
+                        .Include(e => e.ParticipantsAge)
+                        .Include(e => e.Lecturer)
+                        .FirstOrDefaultAsync(e => e.Id == updateEvent.Id);
+
+                    if (existingEvent == null)
+                    {
+                        throw new Exception($"Event with ID {updateEvent.Id} not found.");
+                    }
+
+                    // Update the existing event properties
+                    existingEvent.Title = updateEvent.Title;
+                    existingEvent.VisitorsCount = updateEvent.VisitorsCount;
+                    existingEvent.Equipment = updateEvent.Equipment;
+                    existingEvent.Summary = updateEvent.Summary;
+
+
+
+
+                    // Smanji BookedCount za 1 oslobođenim terminima
+                    foreach (var timeSlot in existingEvent.TimeSlot)
+                    {
+
+                        var foundTimeSlot = _context.TimeSlot
+                            .Where(ts => ts.Id == timeSlot.Id && ts.LocationId == existingEvent.LocationId)
+                            .FirstOrDefault();
+
+                        if (timeSlot != null)
+                        {
+                            timeSlot.BookedCount--;
+
+                            if (timeSlot.BookedCount < 0)
+                            {
+                                throw new Exception($"Time slot with id {timeSlot.Id} can't have BookedCount lower than 0!");
+                            }
+                        }
+
+                    }
+
+                    await _context.SaveChangesAsync();
+
+
+                    // Clear existing TimeSlots and add new ones
+                    existingEvent.TimeSlot.Clear();
+
+
+
+                    if (updateEvent.TimeSlots != null)
+                    {
+                        //get models from dtos
+                        List<int> timeSlotIds = updateEvent.TimeSlots.Select(dto => dto.Id).ToList();
+                        List<TimeSlot> timeSlots = await _context.TimeSlot
+                            .Where(ts => timeSlotIds.Contains(ts.Id))
+                            .ToListAsync();
+                        foreach (var timeSlot in timeSlots)
+                        {
+                            existingEvent.TimeSlot.Add(timeSlot);
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception("Timeslots are required for updating Event!");
+                    }
+
+                    if (timeSlotsTracked)
+                    {
+                        // Update BookedCount for TimeSlots
+                        foreach (var timeSlotDto in updateEvent.TimeSlots)
+                        {
+
+                            var timeSlot = _context.TimeSlot
+                                .Where(ts => ts.Id == timeSlotDto.Id && ts.LocationId == updateEvent.LocationId)
+                                .FirstOrDefault();
+
+                            if (timeSlot != null)
+                            {
+                                timeSlot.BookedCount++;
+
+                                if (timeSlot.BookedCount > location.ParallelEventCount)
+                                {
+                                    throw new Exception($"Time slot with id {timeSlot.Id} is already full!");
+                                }
+                            }
+
+                        }
+
+                        await _context.SaveChangesAsync();
+                    }
+
+
+
+                    // Update ParticipantsAges, Lecturers, and other related entities as needed...
+
+                    await _context.SaveChangesAsync();
+
+                    transaction.Commit();
+
+                    return updateEvent.Id;
+                }
+                catch (Exception exception)
+                {
+                    transaction.Rollback();
+                    throw new Exception($"Problem while updating Event with ID {updateEvent.Id}! \n" + exception.Message);
+                }
+            }
+        }
+
+        public async Task<Account> GetEventSubmitter(int id)
+        {
+            var _event = await _context.Event.Include(e => e.Submitter).Where(e => e.Id == id).FirstOrDefaultAsync();
+
+            if (_event is null)
+            {
+                throw new Exception($"Event with id = {id} does not exists");
+            }
+            else
+            {
+                return _event.Submitter;
+            }
+
+
         }
 
 

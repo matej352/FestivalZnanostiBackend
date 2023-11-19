@@ -27,17 +27,28 @@ namespace FestivalZnanostiApi.Services.impl
             _festivalYearService = festivalYearService;
         }
 
-        public Task<Event> CreateEvent(CreateEventDto createEvent)
+        public async Task<Event> CreateEvent(CreateEventDto createEvent)
         {
-            var eventId = _eventsRepository.SaveEvent(createEvent, _userContext.Id).Result;
+            var eventId = await _eventsRepository.SaveEvent(createEvent, _userContext.Id);
 
-            var _event = _eventsRepository.GetEvent(eventId);
+            var _event = await _eventsRepository.GetEvent(eventId);
 
             return _event;
 
 
 
         }
+
+
+        public async Task<Event> UpdateEvent(UpdateEventDto updateEvent)
+        {
+            var eventId = await _eventsRepository.UpdateEvent(updateEvent);
+
+            var _event = await _eventsRepository.GetEvent(eventId);
+
+            return _event;
+        }
+
 
         public async Task<IEnumerable<EventDto>> GetEvents(int? festivalYearId)
         {
@@ -84,6 +95,12 @@ namespace FestivalZnanostiApi.Services.impl
             List<EventDto> eventDtoList = events.Select(e => e.AsEventDto()).ToList();
 
             return eventDtoList;
+        }
+
+        public async Task<AccountDto> GetEventSubmitter(int eventId)
+        {
+            var submitter = await _eventsRepository.GetEventSubmitter(eventId);
+            return submitter.AsAccountDto();
         }
 
 

@@ -70,18 +70,52 @@ namespace FestivalZnanostiApi.Controllers
         }
 
 
-        [Authorize(Roles = "Submitter")]
+
+        /// <summary>
+        /// Dohvat svih evenata nekog submittera (submitter smije vidjeti isključivo svoje evente, admin može vidjeti svačije evente)
+        /// </summary>
+        /// <param name="submitterId">Identifikator submittera evenata</param>
+        /// <returns></returns>
+        [Authorize]
         [HttpGet]
         [Route("GetSubmittersEvents")]
         public async Task<ActionResult<IEnumerable<EventDto>>> GetSubmittersEvents(int submitterId)
         {
-            if (_userContext.Id != submitterId)
+            if (_userContext.Role != UserRole.Administrator && _userContext.Id != submitterId)
             {
                 return Forbid();
             }
             var events = await _eventsService.GetSubmittersEvents(submitterId);
 
             return Ok(events);
+        }
+
+
+        //[Authorize]
+        [HttpPut]
+        [Route("UpdateEvent/{id}")]
+        public async Task<ActionResult<Event>> UpdateEvent(int id, UpdateEventDto updateEventDto)
+        {
+            if (id != updateEventDto.Id)
+            {
+                return BadRequest();
+            }
+
+            if (_userContext.Role != UserRole.Administrator)
+            {
+                var eventSubmitter = await _eventsService.GetEventSubmitter(id);
+                if (_userContext.Id != eventSubmitter.Id)
+                {
+                    return Forbid("You can edit events that were submitted by you!");
+                }
+            }
+
+
+            var updatedEvent = await _eventsService.UpdateEvent(updateEventDto);
+
+            return Ok(updatedEvent);
+
+
         }
 
 
@@ -108,34 +142,7 @@ namespace FestivalZnanostiApi.Controllers
         */
 
         /*
-    [HttpPut("{id}")]
-    public async Task<IActionResult> PutEvent(int id, Event @event)
-    {
-        if (id != @event.Id)
-        {
-            return BadRequest();
-        }
 
-        _context.Entry(@event).State = EntityState.Modified;
-
-        try
-        {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!EventExists(id))
-            {
-                return NotFound();
-            }
-            else
-            {
-                throw;
-            }
-        }
-
-        return NoContent();
-    }
 
 
     [HttpDelete("{id}")]
