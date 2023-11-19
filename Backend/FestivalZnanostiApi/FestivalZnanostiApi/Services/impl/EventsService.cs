@@ -103,6 +103,9 @@ namespace FestivalZnanostiApi.Services.impl
             return submitter.AsAccountDto();
         }
 
-
+        public async Task DeleteEvent(int eventId)
+        {
+            await _eventsRepository.DeleteEvent(eventId);
+        }
     }
 }

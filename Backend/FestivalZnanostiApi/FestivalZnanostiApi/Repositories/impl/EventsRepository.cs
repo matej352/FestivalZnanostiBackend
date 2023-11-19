@@ -1,6 +1,7 @@
 ﻿using FestivalZnanostiApi.DTOs;
 using FestivalZnanostiApi.Enums;
 using FestivalZnanostiApi.Models;
+using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using NuGet.Protocol.Core.Types;
 using System;
@@ -184,29 +185,8 @@ namespace FestivalZnanostiApi.Repositories.impl
 
                     if (timeSlotsTracked)
                     {
-                        // Update BookedCount for TimeSlots
-                        foreach (var timeSlotDto in createEvent.TimeSlots)
-                        {
-
-                            var timeSlot = _context.TimeSlot
-                                .Where(ts => ts.Id == timeSlotDto.Id && ts.LocationId == createEvent.LocationId)
-                                .FirstOrDefault();
-
-                            if (timeSlot != null)
-                            {
-                                timeSlot.BookedCount++;
-
-                                if (timeSlot.BookedCount > location.ParallelEventCount)
-                                {
-                                    throw new Exception($"Time slot with id {timeSlot.Id} is already full!");
-                                }
-                            }
-
-                        }
-
-                        await _context.SaveChangesAsync();
+                        await IncrementTimeSlotBookedCount(createEvent.TimeSlots, createEvent.LocationId, location.ParallelEventCount);
                     }
-
 
                     transaction.Commit();
 
@@ -287,28 +267,7 @@ namespace FestivalZnanostiApi.Repositories.impl
 
 
 
-
-                    // Smanji BookedCount za 1 oslobođenim terminima
-                    foreach (var timeSlot in existingEvent.TimeSlot)
-                    {
-
-                        var foundTimeSlot = _context.TimeSlot
-                            .Where(ts => ts.Id == timeSlot.Id && ts.LocationId == existingEvent.LocationId)
-                            .FirstOrDefault();
-
-                        if (timeSlot != null)
-                        {
-                            timeSlot.BookedCount--;
-
-                            if (timeSlot.BookedCount < 0)
-                            {
-                                throw new Exception($"Time slot with id {timeSlot.Id} can't have BookedCount lower than 0!");
-                            }
-                        }
-
-                    }
-
-                    await _context.SaveChangesAsync();
+                    await DecrementTimeSlotBookedCount(existingEvent.TimeSlot.ToList(), existingEvent.LocationId);
 
 
                     // Clear existing TimeSlots and add new ones
@@ -335,27 +294,9 @@ namespace FestivalZnanostiApi.Repositories.impl
 
                     if (timeSlotsTracked)
                     {
-                        // Update BookedCount for TimeSlots
-                        foreach (var timeSlotDto in updateEvent.TimeSlots)
-                        {
 
-                            var timeSlot = _context.TimeSlot
-                                .Where(ts => ts.Id == timeSlotDto.Id && ts.LocationId == updateEvent.LocationId)
-                                .FirstOrDefault();
+                        await IncrementTimeSlotBookedCount(updateEvent.TimeSlots, updateEvent.LocationId, location.ParallelEventCount);
 
-                            if (timeSlot != null)
-                            {
-                                timeSlot.BookedCount++;
-
-                                if (timeSlot.BookedCount > location.ParallelEventCount)
-                                {
-                                    throw new Exception($"Time slot with id {timeSlot.Id} is already full!");
-                                }
-                            }
-
-                        }
-
-                        await _context.SaveChangesAsync();
                     }
 
 
@@ -392,6 +333,42 @@ namespace FestivalZnanostiApi.Repositories.impl
 
         }
 
+        public async Task DeleteEvent(int eventId)
+        {
+            using (var transaction = _context.Database.BeginTransaction())
+            {
+                try
+                {
+
+                    var dbEvent = await _context.Event.Include(e => e.TimeSlot).SingleOrDefaultAsync(e => e.Id == eventId);
+
+                    if (dbEvent != null)
+                    {
+
+                        await DecrementTimeSlotBookedCount(dbEvent.TimeSlot.ToList(), dbEvent.LocationId);
+
+
+
+                        _context.Event.Remove(dbEvent);
+                        await _context.SaveChangesAsync();
+
+                        transaction.Commit();
+                    }
+                    else
+                    {
+                        throw new Exception($"Event with id = {eventId} does not exist!");
+                    }
+
+
+                }
+                catch (Exception exception)
+                {
+                    transaction.Rollback();
+                    throw new Exception($"Problem while deleting Event with ID {eventId}! \n" + exception.Message);
+                }
+            }
+        }
+
 
 
         /*
@@ -403,6 +380,53 @@ namespace FestivalZnanostiApi.Repositories.impl
          
          */
 
+
+
+
+        private async Task IncrementTimeSlotBookedCount(List<TimeSlotDto> timeslots, int locationId, int parallelEventCount)
+        {
+            foreach (var timeSlot in timeslots)
+            {
+                var foundTimeSlot = _context.TimeSlot
+                    .Where(ts => ts.Id == timeSlot.Id && ts.LocationId == locationId)
+                    .FirstOrDefault();
+
+                if (foundTimeSlot != null)
+                {
+                    foundTimeSlot.BookedCount += 1;
+
+                    if (foundTimeSlot.BookedCount > parallelEventCount)
+                    {
+                        throw new Exception($"Time slot with id {foundTimeSlot.Id} is already full!");
+                    }
+                }
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+
+        private async Task DecrementTimeSlotBookedCount(List<TimeSlot> timeslots, int locationId)
+        {
+            foreach (var timeSlot in timeslots)
+            {
+                var foundTimeSlot = _context.TimeSlot
+                    .Where(ts => ts.Id == timeSlot.Id && ts.LocationId == locationId)
+                    .FirstOrDefault();
+
+                if (foundTimeSlot != null)
+                {
+                    foundTimeSlot.BookedCount -= 1;
+
+                    if (foundTimeSlot.BookedCount < 0)
+                    {
+                        throw new Exception($"Time slot with id {foundTimeSlot.Id} can't have BookedCount lower than 0!");
+                    }
+                }
+            }
+
+            await _context.SaveChangesAsync();
+        }
 
 
 

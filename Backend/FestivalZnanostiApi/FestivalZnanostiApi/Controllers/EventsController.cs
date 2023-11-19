@@ -55,6 +55,34 @@ namespace FestivalZnanostiApi.Controllers
         //return CreatedAtAction("GetEvent", new { id = @event.Id }, @event);
 
 
+        //[Authorize]
+        [HttpDelete]
+        [Route("DeleteEvent/{id}")]
+        public async Task<ActionResult> DeleteEvent(int id)
+        {
+
+
+            if (_userContext.Role != UserRole.Administrator)
+            {
+
+                var submitter = await _eventsService.GetEventSubmitter(id);
+
+                if (_userContext.Id != submitter.Id)
+                {
+                    return Forbid();
+                }
+
+            }
+
+            await _eventsService.DeleteEvent(id);
+
+            return NoContent();
+
+        }
+
+
+
+
 
         //[Authorize(Roles = "Administrator")]
         [HttpGet]

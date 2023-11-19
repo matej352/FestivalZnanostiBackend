@@ -35,6 +35,7 @@ namespace FestivalZnanostiApi.Repositories.impl
                 StartDate = festivalYear.StartDate.Date,
                 EndDate = festivalYear.EndDate.Date.AddDays(1),  //istestirao i to je to
                 EditUntil = festivalYear.StartDate.Date.AddDays(-21), // submitter može editirat svoj event sve do 3 tjedna prije početka festivala (ili i uvest mogućnost da admin odabere do kada), admin može editirati sve evente čitavo vrijeme
+                ApplicationStart = festivalYear.StartDate.Date.AddDays(-70), // 10 tjedana prije nego počinje festival znanosti otvaraju se prijave
             };
 
             if (festivalYear.Active == 1)

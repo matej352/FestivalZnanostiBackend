@@ -26,8 +26,17 @@ namespace FestivalZnanostiApi.DTOs.Validators
                     .LessThan(dto => dto.StartDate)
                     .WithMessage("EditUntil must be less than StartDate.")
                     .LessThan(dto => dto.EndDate)
-                    .WithMessage("EditUntil must be less than EndDate.");
+                    .WithMessage("EditUntil must be less than EndDate.")
+                    .GreaterThan(dto => dto.ApplicationStart)
+                    .WithMessage("EditUntil must be greater than ApplicationStart.");
             });
+
+            RuleFor(dto => dto.ApplicationStart)
+                .NotEmpty()
+                .Must((dto, applicationStart) => BeInSameYearAs(dto.Year, applicationStart))
+                .WithMessage("ApplicationStart must be in the same year as the specified Year.")
+                .LessThan(dto => dto.StartDate)
+                .WithMessage("ApplicationStart must be less than StartDate.");
         }
 
         private bool BeInSameYearAs(int year, DateTime date)

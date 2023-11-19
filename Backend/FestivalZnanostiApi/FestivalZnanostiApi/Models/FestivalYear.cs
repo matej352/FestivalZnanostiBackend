@@ -25,7 +25,11 @@ public partial class FestivalYear
 
     public DateTime EndDate { get; set; }
 
-    public DateTime? EditUntil { get; set; }
+    public DateTime EditUntil { get; set; }
+
+    public DateTime ApplicationStart { get; set; }
 
     public virtual ICollection<Event> Event { get; set; } = new List<Event>();
+
+    public virtual ICollection<TimeSlot> TimeSlot { get; set; } = new List<TimeSlot>();
 }

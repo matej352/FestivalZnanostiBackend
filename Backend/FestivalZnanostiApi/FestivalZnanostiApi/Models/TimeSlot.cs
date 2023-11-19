@@ -15,6 +15,10 @@ public partial class TimeSlot
 
     public int? LocationId { get; set; }
 
+    public int? FestivalYearId { get; set; }
+
+    public virtual FestivalYear FestivalYear { get; set; }
+
     public virtual Location Location { get; set; }
 
     public virtual ICollection<Event> Event { get; set; } = new List<Event>();

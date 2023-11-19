@@ -18,5 +18,7 @@ namespace FestivalZnanostiApi.Repositories
         public Task<IEnumerable<Event>> GetEvents(int submitterId);
 
         public Task<Account> GetEventSubmitter(int eventId);
+
+        public Task DeleteEvent(int eventId);
     }
 }

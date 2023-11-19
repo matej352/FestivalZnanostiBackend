@@ -33,11 +33,13 @@ public partial class FestivalZnanostiContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.UseCollation("SQL_Latin1_General_CP1250_CI_AS");
+
         modelBuilder.Entity<Account>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Account__3214EC07D336F953");
+            entity.HasKey(e => e.Id).HasName("PK__Account__3214EC075CB9C03D");
 
-            entity.HasIndex(e => e.Email, "UQ__Account__A9D10534E2C634B3").IsUnique();
+            entity.HasIndex(e => e.Email, "UQ__Account__A9D1053494C6B3CE").IsUnique();
 
             entity.Property(e => e.Email)
                 .IsRequired()
@@ -61,7 +63,7 @@ public partial class FestivalZnanostiContext : DbContext
 
         modelBuilder.Entity<Event>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Event__3214EC079093E635");
+            entity.HasKey(e => e.Id).HasName("PK__Event__3214EC0729176D9B");
 
             entity.Property(e => e.Equipment)
                 .IsRequired()
@@ -82,36 +84,37 @@ public partial class FestivalZnanostiContext : DbContext
 
             entity.HasOne(d => d.FestivalYear).WithMany(p => p.Event)
                 .HasForeignKey(d => d.FestivalYearId)
-                .HasConstraintName("FK__Event__FestivalY__32E0915F");
+                .HasConstraintName("FK__Event__FestivalY__300424B4");
 
             entity.HasOne(d => d.Location).WithMany(p => p.Event)
                 .HasForeignKey(d => d.LocationId)
-                .HasConstraintName("FK__Event__LocationI__30F848ED");
+                .HasConstraintName("FK__Event__LocationI__2E1BDC42");
 
             entity.HasOne(d => d.Submitter).WithMany(p => p.Event)
                 .HasForeignKey(d => d.SubmitterId)
                 .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK__Event__Submitter__31EC6D26");
+                .HasConstraintName("FK__Event__Submitter__2F10007B");
 
             entity.HasMany(d => d.ParticipantsAge).WithMany(p => p.Event)
                 .UsingEntity<Dictionary<string, object>>(
                     "ForAge",
                     r => r.HasOne<ParticipantsAge>().WithMany()
                         .HasForeignKey("ParticipantsAgeId")
-                        .HasConstraintName("FK__ForAge__Particip__3C69FB99"),
+                        .HasConstraintName("FK__ForAge__Particip__3A81B327"),
                     l => l.HasOne<Event>().WithMany()
                         .HasForeignKey("EventId")
-                        .HasConstraintName("FK__ForAge__EventId__3B75D760"),
+                        .HasConstraintName("FK__ForAge__EventId__398D8EEE"),
                     j =>
                     {
-                        j.HasKey("EventId", "ParticipantsAgeId").HasName("PK__ForAge__F266F9B5FF183B3D");
+                        j.HasKey("EventId", "ParticipantsAgeId").HasName("PK__ForAge__F266F9B537117063");
                     });
         });
 
         modelBuilder.Entity<FestivalYear>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Festival__3214EC073066FDBF");
+            entity.HasKey(e => e.Id).HasName("PK__Festival__3214EC071195CC14");
 
+            entity.Property(e => e.ApplicationStart).HasColumnType("datetime");
             entity.Property(e => e.Description)
                 .IsRequired()
                 .HasMaxLength(1000)
@@ -131,7 +134,7 @@ public partial class FestivalZnanostiContext : DbContext
 
         modelBuilder.Entity<Lecturer>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Lecturer__3214EC076127188A");
+            entity.HasKey(e => e.Id).HasName("PK__Lecturer__3214EC0756894C0C");
 
             entity.Property(e => e.Email)
                 .IsRequired()
@@ -155,12 +158,12 @@ public partial class FestivalZnanostiContext : DbContext
 
             entity.HasOne(d => d.Event).WithMany(p => p.Lecturer)
                 .HasForeignKey(d => d.EventId)
-                .HasConstraintName("FK__Lecturer__EventI__38996AB5");
+                .HasConstraintName("FK__Lecturer__EventI__36B12243");
         });
 
         modelBuilder.Entity<Location>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Location__3214EC07BE027316");
+            entity.HasKey(e => e.Id).HasName("PK__Location__3214EC07B6C9FF6D");
 
             entity.Property(e => e.Name)
                 .IsRequired()
@@ -174,7 +177,7 @@ public partial class FestivalZnanostiContext : DbContext
 
         modelBuilder.Entity<ParticipantsAge>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Particip__3214EC076DC94458");
+            entity.HasKey(e => e.Id).HasName("PK__Particip__3214EC0722546479");
 
             entity.Property(e => e.Age)
                 .IsRequired()
@@ -189,28 +192,33 @@ public partial class FestivalZnanostiContext : DbContext
 
         modelBuilder.Entity<TimeSlot>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__TimeSlot__3214EC07BC6D4FA4");
+            entity.HasKey(e => e.Id).HasName("PK__TimeSlot__3214EC076AE900D7");
 
             entity.Property(e => e.Start).HasColumnType("datetime");
+
+            entity.HasOne(d => d.FestivalYear).WithMany(p => p.TimeSlot)
+                .HasForeignKey(d => d.FestivalYearId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK__TimeSlot__Festiv__33D4B598");
 
             entity.HasOne(d => d.Location).WithMany(p => p.TimeSlot)
                 .HasForeignKey(d => d.LocationId)
                 .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK__TimeSlot__Locati__35BCFE0A");
+                .HasConstraintName("FK__TimeSlot__Locati__32E0915F");
 
             entity.HasMany(d => d.Event).WithMany(p => p.TimeSlot)
                 .UsingEntity<Dictionary<string, object>>(
                     "During",
                     r => r.HasOne<Event>().WithMany()
                         .HasForeignKey("EventId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__During__EventId__403A8C7D"),
+                        .HasConstraintName("FK__During__EventId__4316F928"),
                     l => l.HasOne<TimeSlot>().WithMany()
                         .HasForeignKey("TimeSlotId")
-                        .HasConstraintName("FK__During__TimeSlot__3F466844"),
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK__During__TimeSlot__4222D4EF"),
                     j =>
                     {
-                        j.HasKey("TimeSlotId", "EventId").HasName("PK__During__565853B317A8335C");
+                        j.HasKey("TimeSlotId", "EventId").HasName("PK__During__565853B33C44020B");
                     });
         });
 
