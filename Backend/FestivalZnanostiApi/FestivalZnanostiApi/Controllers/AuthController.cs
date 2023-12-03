@@ -33,7 +33,12 @@ namespace FestivalZnanostiApi.Controllers
 
             var accountId = await this._authService.registerAccount(registerDto);
 
-            return Ok("Account registerd successfully!");
+            var response = new Response
+            {
+                Message = "Račun je uspješno registriran"
+            };
+
+            return Ok(response);
 
         }
 
@@ -46,6 +51,7 @@ namespace FestivalZnanostiApi.Controllers
         {
 
             var account = await this._authService.loginAccount(loginDto);
+            var response = new Response();
 
             if (account is not null)
             {
@@ -67,21 +73,30 @@ namespace FestivalZnanostiApi.Controllers
                 {
                     IsPersistent = true
                 });
-                return Ok("Logged in successfully");
+
+                response.Message = "Prijava uspješna";
+                return Ok(response);
             }
             else
             {
-                return BadRequest("Invalid email or password");
+                response.Message = "Neispravan email ili lozinka";
+                return BadRequest(response);
             }
         }
 
-        // POST api/<AuthenticationController>
+
         [HttpPost]
         [Route("Logout")]
-        public async Task<string> Logout()
+        public async Task<ActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return "Logged out successfully";
+
+            var response = new Response
+            {
+                Message = "Odjava uspješna"
+            };
+
+            return Ok(response);
         }
 
 
