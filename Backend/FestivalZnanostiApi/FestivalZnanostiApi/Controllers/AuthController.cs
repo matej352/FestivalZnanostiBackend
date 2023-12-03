@@ -76,7 +76,7 @@ namespace FestivalZnanostiApi.Controllers
         }
 
         // POST api/<AuthenticationController>
-        [HttpGet]
+        [HttpPost]
         [Route("Logout")]
         public async Task<string> Logout()
         {
