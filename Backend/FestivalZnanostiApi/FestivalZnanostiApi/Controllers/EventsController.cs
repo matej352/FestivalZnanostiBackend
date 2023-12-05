@@ -161,11 +161,11 @@ namespace FestivalZnanostiApi.Controllers
         //[Authorize]
         [HttpPut]
         [Route("UpdateEvent/{id}")]
-        public async Task<ActionResult<Event>> UpdateEvent(int id, UpdateEventDto updateEventDto)
+        public async Task<ActionResult<EventDto>> UpdateEvent(int id, UpdateEventDto updateEventDto)
         {
             if (id != updateEventDto.Id)
             {
-                return BadRequest();
+                return BadRequest("Event id mismatch!");
             }
 
             if (_userContext.Role != UserRole.Administrator)

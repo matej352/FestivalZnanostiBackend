@@ -21,7 +21,7 @@ namespace FestivalZnanostiApi.Services
 
         public Task<AccountDto> GetEventSubmitter(int eventId);
 
-        public Task<Event> UpdateEvent(UpdateEventDto updateEvent);
+        public Task<EventDto> UpdateEvent(UpdateEventDto updateEvent);
 
         public Task DeleteEvent(int eventId);
 

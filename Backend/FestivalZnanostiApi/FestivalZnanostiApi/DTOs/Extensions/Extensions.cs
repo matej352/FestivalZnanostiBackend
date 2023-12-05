@@ -73,6 +73,7 @@ namespace FestivalZnanostiApi.DTOs.Extensions
         {
             return new LecturerDto
             {
+                Id = l.Id,
                 FirstName = l.FirstName,
                 LastName = l.LastName,
                 Phone = l.Phone,

@@ -18,7 +18,11 @@ namespace FestivalZnanostiApi.DTOs
 
         public int LocationId { get; set; }
 
-        public List<LecturerDto> Lecturers { get; set; }
+        public List<LecturerDto>? LecturersForUpdate { get; set; }
+
+        public List<LecturerDto>? LecturersForCreate { get; set; }
+
+        public List<int>? LecturersForDelete { get; set; }
 
         public List<ParticipantsAgeDto> ParticipantsAges { get; set; }
 

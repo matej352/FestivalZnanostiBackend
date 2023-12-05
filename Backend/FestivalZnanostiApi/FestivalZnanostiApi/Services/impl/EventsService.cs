@@ -42,13 +42,13 @@ namespace FestivalZnanostiApi.Services.impl
         }
 
 
-        public async Task<Event> UpdateEvent(UpdateEventDto updateEvent)
+        public async Task<EventDto> UpdateEvent(UpdateEventDto updateEvent)
         {
             var eventId = await _eventsRepository.UpdateEvent(updateEvent);
 
             var _event = await _eventsRepository.GetEvent(eventId);
 
-            return _event;
+            return _event.AsEventDto();
         }
 
 

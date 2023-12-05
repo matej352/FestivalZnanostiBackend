@@ -254,6 +254,14 @@ namespace FestivalZnanostiApi.Repositories.impl
                     }
                     var timeSlotsTracked = location.TimeSlotsTracked;
 
+                    //get models from dtos
+                    List<int> timeSlotIds = updateEvent.TimeSlots.Select(dto => dto.Id).ToList();
+                    List<TimeSlot> timeSlots = await _context.TimeSlot
+                        .Where(ts => timeSlotIds.Contains(ts.Id))
+                        .ToListAsync();
+
+
+
 
                     // Retrieve the existing event
                     var existingEvent = await _context.Event
@@ -267,6 +275,26 @@ namespace FestivalZnanostiApi.Repositories.impl
                         throw new Exception($"Event with ID {updateEvent.Id} not found.");
                     }
 
+                    //  VALIDATION - That means that Event is in Tehnički muzej ( Kino dvorana (id=2), Izložbena dvorana (id=3) or Dvroište(id=4) )
+                    if (timeSlotsTracked)
+                    {
+                        checkEventTypeAndLocationMatch(location.Id, updateEvent.Type);
+
+                        //  TODO: provjerit pripadaju li timeslotovi lokaciji sa createEvent.LocationId
+                    }
+                    else
+                    {
+                        //check are the selected timeslots actually timeslots for untrackable Events (TimeSlot.LocationId should be null)
+                        bool allHaveNullLocationId = timeSlots.All(ts => ts.LocationId == null);
+
+                        if (!allHaveNullLocationId)
+                        {
+                            throw new Exception("Timeslots do not correspond to the provided location!");
+                        }
+                    }
+
+
+
                     // Update the existing event properties
                     existingEvent.Title = updateEvent.Title;
                     existingEvent.VisitorsCount = updateEvent.VisitorsCount;
@@ -275,7 +303,15 @@ namespace FestivalZnanostiApi.Repositories.impl
 
 
 
+
+
+                    existingEvent.Type = mapEventType(updateEvent.Type);
+
+
+
                     await DecrementTimeSlotBookedCount(existingEvent.TimeSlot.ToList(), existingEvent.LocationId);
+
+                    existingEvent.LocationId = updateEvent.LocationId;
 
 
                     // Clear existing TimeSlots and add new ones
@@ -285,11 +321,7 @@ namespace FestivalZnanostiApi.Repositories.impl
 
                     if (updateEvent.TimeSlots != null)
                     {
-                        //get models from dtos
-                        List<int> timeSlotIds = updateEvent.TimeSlots.Select(dto => dto.Id).ToList();
-                        List<TimeSlot> timeSlots = await _context.TimeSlot
-                            .Where(ts => timeSlotIds.Contains(ts.Id))
-                            .ToListAsync();
+
                         foreach (var timeSlot in timeSlots)
                         {
                             existingEvent.TimeSlot.Add(timeSlot);
@@ -309,7 +341,80 @@ namespace FestivalZnanostiApi.Repositories.impl
 
 
 
-                    // Update ParticipantsAges, Lecturers, and other related entities as needed...
+                    // Update ParticipantsAges
+
+                    List<int> participantsAgesIds = updateEvent.ParticipantsAges.Select(dto => dto.Id).ToList();
+                    List<ParticipantsAge> participantsAges = await _context.ParticipantsAge
+                        .Where(pa => participantsAgesIds.Contains(pa.Id))
+                        .ToListAsync();
+
+                    existingEvent.ParticipantsAge.Clear();
+                    existingEvent.ParticipantsAge = (ICollection<ParticipantsAge>)participantsAges;
+
+
+
+                    //Update Lecturers
+
+                    if (updateEvent.LecturersForDelete != null)
+                    {
+                        foreach (var id in updateEvent.LecturersForDelete)
+                        {
+                            var lecturer = await _context.Lecturer.FindAsync(id);
+
+                            if (lecturer != null)
+                            {
+                                _context.Lecturer.Remove(lecturer);
+                            }
+                        }
+
+                        await _context.SaveChangesAsync();
+                    }
+
+                    if (updateEvent.LecturersForCreate != null)
+                    {
+                        foreach (var lecturerDto in updateEvent.LecturersForCreate)
+                        {
+                            var newLecturer = new Lecturer
+                            {
+                                FirstName = lecturerDto.FirstName,
+                                LastName = lecturerDto.LastName,
+                                Phone = lecturerDto.Phone,
+                                Email = lecturerDto.Email,
+                                Type = (int)lecturerDto.Type == 1 ? true : false,
+                                Resume = lecturerDto.Resume,
+                                EventId = existingEvent.Id
+                            };
+
+                            _context.Lecturer.Add(newLecturer);
+                        }
+
+                        await _context.SaveChangesAsync();
+                    }
+
+                    if (updateEvent.LecturersForUpdate != null)
+                    {
+                        foreach (var lecturerDto in updateEvent.LecturersForUpdate)
+                        {
+                            var lecturer = await _context.Lecturer.FindAsync(lecturerDto.Id);
+
+                            if (lecturer != null)
+                            {
+                                lecturer.FirstName = lecturerDto.FirstName;
+                                lecturer.LastName = lecturerDto.LastName;
+                                lecturer.Phone = lecturerDto.Phone;
+                                lecturer.Email = lecturerDto.Email;
+                                lecturer.Type = (int)lecturerDto.Type == 1 ? true : false;
+                                lecturer.Resume = lecturerDto.Resume;
+
+                                await _context.SaveChangesAsync();
+                            }
+                        }
+
+                    }
+
+
+
+
 
                     await _context.SaveChangesAsync();
 
@@ -395,9 +500,9 @@ namespace FestivalZnanostiApi.Repositories.impl
         {
             foreach (var timeSlot in timeslots)
             {
-                var foundTimeSlot = _context.TimeSlot
+                var foundTimeSlot = await _context.TimeSlot
                     .Where(ts => ts.Id == timeSlot.Id && ts.LocationId == locationId)
-                    .FirstOrDefault();
+                    .FirstOrDefaultAsync();
 
                 if (foundTimeSlot != null)
                 {
@@ -418,9 +523,9 @@ namespace FestivalZnanostiApi.Repositories.impl
         {
             foreach (var timeSlot in timeslots)
             {
-                var foundTimeSlot = _context.TimeSlot
+                var foundTimeSlot = await _context.TimeSlot
                     .Where(ts => ts.Id == timeSlot.Id && ts.LocationId == locationId)
-                    .FirstOrDefault();
+                    .FirstOrDefaultAsync();
 
                 if (foundTimeSlot != null)
                 {
