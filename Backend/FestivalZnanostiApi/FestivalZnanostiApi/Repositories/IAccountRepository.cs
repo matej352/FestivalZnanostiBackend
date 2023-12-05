@@ -10,5 +10,7 @@ namespace FestivalZnanostiApi.Repositories
 
         public Task<Account?> GetAccountByEmail(string email);
 
+
+        public Task<Account?> GetAccount(int id);
     }
 }

@@ -48,6 +48,11 @@ namespace FestivalZnanostiApi.Repositories.impl
             return await Task.FromResult(newAccount.Id);
         }
 
+        public async Task<Account?> GetAccount(int id)
+        {
+            return await _context.Account.FindAsync(id);
+        }
+
         public async Task<Account?> GetAccountByEmail(string email)
         {
             return await _context.Account.FirstOrDefaultAsync(acc => acc.Email == email);

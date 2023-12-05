@@ -8,5 +8,7 @@ namespace FestivalZnanostiApi.Services
         public Task<int> CreateAccount(RegisterDto registerDto);
 
         public Task<Account?> GetAccountByEmail(string email);
+
+        public Task<AccountDto> GetAccount(int id);
     }
 }
