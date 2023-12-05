@@ -133,6 +133,31 @@ namespace FestivalZnanostiApi.Controllers
         }
 
 
+        /// <summary>
+        /// Dohvat eventa sa predanim id-em (submitter smije vidjeti isključivo svoj event, admin može vidjeti svačiji event)
+        /// </summary>
+        /// <param name="id">Identifikator eventa</param>
+        /// <returns></returns>
+        [Authorize]
+        [HttpGet]
+        [Route("GetEvent")]
+        public async Task<ActionResult<EventDto>> GetEvent(int id)
+        {
+            if (_userContext.Role != UserRole.Administrator)
+            {
+                var submitter = await _eventsService.GetEventSubmitter(id);
+                if (submitter.Id != _userContext.Id)
+                {
+                    return Forbid("You can see events that were submitted by you!");
+                }
+            }
+
+            var eventDto = await _eventsService.GetEvent(id);
+
+            return Ok(eventDto);
+        }
+
+
         //[Authorize]
         [HttpPut]
         [Route("UpdateEvent/{id}")]

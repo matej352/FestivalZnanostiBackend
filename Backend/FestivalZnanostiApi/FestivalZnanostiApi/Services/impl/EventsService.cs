@@ -5,6 +5,7 @@ using FestivalZnanostiApi.Middlewares.UserContext;
 using FestivalZnanostiApi.Models;
 using FestivalZnanostiApi.Repositories;
 using FestivalZnanostiApi.Servicess;
+using Microsoft.Extensions.Logging;
 using NuGet.Protocol.Core.Types;
 
 namespace FestivalZnanostiApi.Services.impl
@@ -97,6 +98,14 @@ namespace FestivalZnanostiApi.Services.impl
 
             return eventDtoList;
         }
+
+        public async Task<EventDto> GetEvent(int id)
+        {
+            var _event = await _eventsRepository.GetEvent(id);
+            return _event.AsEventDto();
+        }
+
+
 
         public async Task<AccountDto> GetEventSubmitter(int eventId)
         {

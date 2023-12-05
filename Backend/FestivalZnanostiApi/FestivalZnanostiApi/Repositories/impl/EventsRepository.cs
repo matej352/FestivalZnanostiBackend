@@ -23,7 +23,15 @@ namespace FestivalZnanostiApi.Repositories.impl
 
         public async Task<Event> GetEvent(int id)
         {
-            var _event = await _context.Event.FindAsync(id);
+            var _event = await _context.Event
+                .Include(e => e.Location)
+                .Include(e => e.Location.ParentLocation)
+                .Include(e => e.Submitter)
+                .Include(e => e.ParticipantsAge)
+                .Include(e => e.Lecturer)
+                .Include(e => e.TimeSlot)
+                .FirstOrDefaultAsync(e => e.Id == id);
+
             if (_event is null)
             {
                 throw new Exception($"Event with id = {id} does not exists");
