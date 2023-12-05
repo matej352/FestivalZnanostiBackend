@@ -428,7 +428,18 @@ namespace FestivalZnanostiApi.Repositories.impl
             await _context.SaveChangesAsync();
         }
 
-
-
+        public async Task ChangeStatus(int eventId, EventStatus status)
+        {
+            var ev = await _context.Event.FindAsync(eventId);
+            if (ev != null)
+            {
+                ev.Status = (int)status;
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                throw new Exception($"Event with id {eventId} does not exist!");
+            }
+        }
     }
 }

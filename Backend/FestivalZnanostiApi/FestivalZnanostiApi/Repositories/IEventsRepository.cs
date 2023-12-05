@@ -1,4 +1,5 @@
 ﻿using FestivalZnanostiApi.DTOs;
+using FestivalZnanostiApi.Enums;
 using FestivalZnanostiApi.Models;
 
 namespace FestivalZnanostiApi.Repositories
@@ -20,5 +21,7 @@ namespace FestivalZnanostiApi.Repositories
         public Task<Account> GetEventSubmitter(int eventId);
 
         public Task DeleteEvent(int eventId);
+
+        public Task ChangeStatus(int eventId, EventStatus status);
     }
 }

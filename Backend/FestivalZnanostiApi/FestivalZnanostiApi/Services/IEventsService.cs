@@ -1,4 +1,5 @@
 ﻿using FestivalZnanostiApi.DTOs;
+using FestivalZnanostiApi.Enums;
 using FestivalZnanostiApi.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,5 +22,7 @@ namespace FestivalZnanostiApi.Services
         public Task<Event> UpdateEvent(UpdateEventDto updateEvent);
 
         public Task DeleteEvent(int eventId);
+
+        public Task ChangeStatus(int eventId, EventStatus status);
     }
 }

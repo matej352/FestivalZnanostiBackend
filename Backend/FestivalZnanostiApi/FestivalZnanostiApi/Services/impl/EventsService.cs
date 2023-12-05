@@ -1,5 +1,6 @@
 ﻿using FestivalZnanostiApi.DTOs;
 using FestivalZnanostiApi.DTOs.Extensions;
+using FestivalZnanostiApi.Enums;
 using FestivalZnanostiApi.Middlewares.UserContext;
 using FestivalZnanostiApi.Models;
 using FestivalZnanostiApi.Repositories;
@@ -106,6 +107,11 @@ namespace FestivalZnanostiApi.Services.impl
         public async Task DeleteEvent(int eventId)
         {
             await _eventsRepository.DeleteEvent(eventId);
+        }
+
+        public async Task ChangeStatus(int eventId, EventStatus status)
+        {
+            await _eventsRepository.ChangeStatus(eventId, status);
         }
     }
 }

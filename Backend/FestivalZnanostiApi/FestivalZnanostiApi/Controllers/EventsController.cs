@@ -11,6 +11,7 @@ using FestivalZnanostiApi.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using FestivalZnanostiApi.Middlewares.UserContext;
 using FestivalZnanostiApi.Enums;
+using NuGet.Protocol.Core.Types;
 
 namespace FestivalZnanostiApi.Controllers
 {
@@ -78,6 +79,19 @@ namespace FestivalZnanostiApi.Controllers
 
             return NoContent();
 
+        }
+
+
+        [Authorize]
+        [HttpPut("ChangeStatus/{id}")]
+        public async Task<ActionResult> ChangeStatus(int id, [FromBody] EventStatus status)
+        {
+            if (_userContext.Role != UserRole.Administrator)
+            {
+                return Forbid();
+            }
+            await _eventsService.ChangeStatus(id, status);
+            return NoContent();
         }
 
 
