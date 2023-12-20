@@ -47,7 +47,9 @@ builder.Services.AddCors(c =>
         options.AllowCredentials()
             .AllowAnyMethod()
             .AllowAnyHeader()
-            .WithOrigins("http://localhost:7282",
+            .WithOrigins(
+                "http://localhost:7282",
+                "http://localhost:3000", 
                 "https://4ivliy722g3exbyg.myfritz.net:7282",
                 "https://festival-znanosti-zagreb.vercel.app")
     // .AllowAnyOrigin()
