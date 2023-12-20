@@ -33,7 +33,7 @@ namespace FestivalZnanostiApi.Controllers
         }
 
         //ovo ostalo samo ovak stoji
-
+        /*
         // GET api/<AccountController>/5
         [HttpGet("{id}")]
         public string Get(int id)
@@ -58,5 +58,6 @@ namespace FestivalZnanostiApi.Controllers
         public void Delete(int id)
         {
         }
+        */
     }
 }

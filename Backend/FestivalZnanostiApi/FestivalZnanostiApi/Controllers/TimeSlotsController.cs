@@ -39,7 +39,7 @@ namespace FestivalZnanostiApi.Controllers
 
 
 
-
+        /*
 
 
         // GET api/<TimeSlotsController>/5
@@ -66,5 +66,7 @@ namespace FestivalZnanostiApi.Controllers
         public void Delete(int id)
         {
         }
+
+        */
     }
 }

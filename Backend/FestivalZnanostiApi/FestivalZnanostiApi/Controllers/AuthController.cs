@@ -101,7 +101,7 @@ namespace FestivalZnanostiApi.Controllers
 
 
 
-        [Authorize]
+        /*[Authorize]
         [HttpGet]
         [Route("restricted")]
         public string Restricted()
@@ -116,7 +116,7 @@ namespace FestivalZnanostiApi.Controllers
         {
             return "Dobar si admin";
         }
-
+        */
 
     }
 }

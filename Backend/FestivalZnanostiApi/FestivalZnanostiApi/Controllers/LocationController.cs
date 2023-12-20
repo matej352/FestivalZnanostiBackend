@@ -82,6 +82,7 @@ namespace FestivalZnanostiApi.Controllers
             return Ok();
         }
 
+        /*
 
         // PUT api/<LocationController>/5
         [HttpPut("{id}")]
@@ -94,5 +95,7 @@ namespace FestivalZnanostiApi.Controllers
         public void Delete(int id)
         {
         }
+
+        */
     }
 }

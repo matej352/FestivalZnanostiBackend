@@ -47,7 +47,7 @@ builder.Services.AddCors(c =>
                 options.AllowCredentials()
                        .AllowAnyMethod()
                        .AllowAnyHeader()
-                       .WithOrigins("http://localhost:3000")
+                       .WithOrigins("https://festival-znanosti-zagreb.vercel.app", "http://localhost:3000")
                 //.AllowAnyOrigin()
                 );
 });
