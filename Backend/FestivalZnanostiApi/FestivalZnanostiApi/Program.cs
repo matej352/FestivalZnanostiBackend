@@ -44,12 +44,14 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddCors(c =>
 {
     c.AddPolicy("CorsPolicy", options =>
-                options.AllowCredentials()
-                       .AllowAnyMethod()
-                       .AllowAnyHeader()
-                       .WithOrigins("https://festival-znanosti-zagreb.vercel.app", "http://localhost:3000")
-                //.AllowAnyOrigin()
-                );
+        options.AllowCredentials()
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .WithOrigins("http://localhost:7282",
+                "https://4ivliy722g3exbyg.myfritz.net:7282",
+                "https://festival-znanosti-zagreb.vercel.app")
+    // .AllowAnyOrigin()
+    );
 });
 
 
