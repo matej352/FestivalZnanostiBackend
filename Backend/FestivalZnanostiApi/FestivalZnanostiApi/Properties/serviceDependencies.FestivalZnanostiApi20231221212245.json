@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "mssql1": {
+      "serviceConnectorResourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Web/sites/FestivalZnanostiApi20231221212245/providers/Microsoft.ServiceLinker/linkers/ConnectionStringsFestivalZnanosti_D28E700AF4",
+      "secretStore": "AzureAppSettings",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourcegroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/festivalznanostiapidbserver/databases/FestivalZnanostiApi_db",
+      "type": "mssql.azure",
+      "connectionId": "ConnectionStrings:FestivalZnanosti",
+      "dynamicId": null
+    }
+  }
+}
