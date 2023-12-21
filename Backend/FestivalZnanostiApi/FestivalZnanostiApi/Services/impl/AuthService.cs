@@ -58,14 +58,14 @@ namespace FestivalZnanostiApi.Services.impl
 
             if (account is null)
             {
-                throw new Exception("Incorrect username or password!");
+                throw new Exception("Neispravan email ili lozinka!");
             }
             var passwordHashingHandler = new PasswordHashingHandler(loginDto.Password);
 
 
             if (!passwordHashingHandler.VerifyPasswordHash(Convert.FromBase64String(account.Password), Convert.FromBase64String(account.Salt)))
             {
-                throw new Exception("Incorrect username or password!");
+                throw new Exception("Neispravan email ili lozinka!");
             }
 
             return account.AsAccountDto();

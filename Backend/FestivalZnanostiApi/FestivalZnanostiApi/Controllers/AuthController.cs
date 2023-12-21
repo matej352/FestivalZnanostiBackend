@@ -53,12 +53,9 @@ namespace FestivalZnanostiApi.Controllers
             var account = await this._authService.loginAccount(loginDto);
             var response = new Response();
 
-            if (account is not null)
-            {
+            var userRole = (account.Role == (int)UserRole.Administrator) ? "Administrator" : "Submitter";
 
-                var userRole = (account.Role == (int)UserRole.Administrator) ? "Administrator" : "Submitter";
-
-                var claims = new List<Claim>()
+            var claims = new List<Claim>()
                 {
                     new Claim(ClaimTypes.NameIdentifier, Convert.ToString(account.Id)),
                     new Claim(ClaimTypes.Email,account.Email),
@@ -67,21 +64,15 @@ namespace FestivalZnanostiApi.Controllers
 
                 };
 
-                var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                var principal = new ClaimsPrincipal(identity);
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, new AuthenticationProperties()
-                {
-                    IsPersistent = true
-                });
-
-                response.Message = "Prijava uspješna";
-                return Ok(response);
-            }
-            else
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, new AuthenticationProperties()
             {
-                response.Message = "Neispravan email ili lozinka";
-                return BadRequest(response);
-            }
+                IsPersistent = true
+            });
+
+            response.Message = "Prijava uspješna";
+            return Ok(response);
         }
 
 

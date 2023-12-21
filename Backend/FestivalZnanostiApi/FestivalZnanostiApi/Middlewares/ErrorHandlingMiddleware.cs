@@ -24,7 +24,7 @@ namespace FestivalZnanostiApi.Middlewares
                 // Log the exception details if needed
                 // Send a custom error response to the client
                 context.Response.ContentType = "application/json";
-                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
 
                 var response = new ErrorResponse { Message = ex.Message };
                 await context.Response.WriteAsync(JsonConvert.SerializeObject(response));
