@@ -49,7 +49,7 @@ builder.Services.AddCors(c =>
             .AllowAnyHeader()
             .WithOrigins(
                 "http://localhost:7282",
-                "http://localhost:3000", 
+                "http://localhost:3000",
                 "https://4ivliy722g3exbyg.myfritz.net:7282",
                 "https://festival-znanosti-zagreb.vercel.app")
     // .AllowAnyOrigin()
@@ -102,7 +102,7 @@ var app = builder.Build();
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
 
-// Configure the HTTP request pipeline.
+// Sad ce swagger biti i na produkciji, to ne zelimo, kasnije vratiti ta je swagger samo na dev okolini!!!
 /*if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
