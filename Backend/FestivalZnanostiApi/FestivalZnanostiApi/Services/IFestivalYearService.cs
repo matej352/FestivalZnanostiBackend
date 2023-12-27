@@ -13,5 +13,9 @@ namespace FestivalZnanostiApi.Servicess
         public Task<FestivalYearDto> CreateFestivalYear(CreateFestivalYearDto festivalYear);
 
         public Task<FestivalYearDto> GetActiveFestivalYear();
+
+        public Task<FestivalYearDto> UpdateFestivalYear(UpdateFestivalYearDto updateFestivalYear);
+
+
     }
 }

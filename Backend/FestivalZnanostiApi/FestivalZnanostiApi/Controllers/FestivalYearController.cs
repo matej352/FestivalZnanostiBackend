@@ -1,8 +1,11 @@
 using FestivalZnanostiApi.DTOs;
 using FestivalZnanostiApi.DTOs.Validators;
+using FestivalZnanostiApi.Enums;
+using FestivalZnanostiApi.Middlewares.UserContext;
 using FestivalZnanostiApi.Models;
 using FestivalZnanostiApi.Servicess;
 using FestivalZnanostiApi.Servicess.impl;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FestivalZnanostiApi.Controllers
@@ -43,7 +46,7 @@ namespace FestivalZnanostiApi.Controllers
         }
 
 
-        //[Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrator")]
         [HttpPost]
         [Route("Create")]
         public async Task<ActionResult<FestivalYearDto>> CreateFestivalYear(CreateFestivalYearDto FestivalYear)
@@ -56,6 +59,23 @@ namespace FestivalZnanostiApi.Controllers
 
             var newFestivalYear = _festivalYearService.CreateFestivalYear(FestivalYear);
             return Ok(newFestivalYear);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpPut]
+        [Route("UpdateFestivalYear/{id}")]
+        public async Task<ActionResult<FestivalYearDto>> UpdateFestivalYear(int id, UpdateFestivalYearDto updateFestivalYearDto)
+        {
+            if (id != updateFestivalYearDto.Id)
+            {
+                return BadRequest("Festival year id mismatch!");
+            }
+
+            var updatedFestivalYear = await _festivalYearService.UpdateFestivalYear(updateFestivalYearDto);
+
+            return Ok(updatedFestivalYear);
+
+
         }
     }
 }

@@ -26,6 +26,7 @@ namespace FestivalZnanostiApi.Controllers
         }
 
 
+        //ovo bi bilo dobro prebaciti u AccountController
         [HttpPost]
         [Route("Register")]
         public async Task<ActionResult> Register(RegisterDto registerDto)
@@ -68,7 +69,8 @@ namespace FestivalZnanostiApi.Controllers
             var principal = new ClaimsPrincipal(identity);
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, new AuthenticationProperties()
             {
-                IsPersistent = true
+                IsPersistent = true,
+                ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(45) // Set the expiration time here (e.g., 45 minutes from now)
             });
 
             response.Message = "Prijava uspješna";

@@ -14,5 +14,8 @@ namespace FestivalZnanostiApi.Repositories
         public Task<FestivalYear> FindById(int id);
 
         public Task<FestivalYearDto> FindActiveFestivalYear();
+
+        public Task<int> UpdateFestivalYear(UpdateFestivalYearDto updateFestivalYear);
+
     }
 }

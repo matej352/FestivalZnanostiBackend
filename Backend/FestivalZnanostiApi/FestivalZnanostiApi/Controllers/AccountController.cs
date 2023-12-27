@@ -1,6 +1,8 @@
 ﻿using FestivalZnanostiApi.DTOs;
+using FestivalZnanostiApi.Enums;
 using FestivalZnanostiApi.Middlewares.UserContext;
 using FestivalZnanostiApi.Services;
+using FestivalZnanostiApi.Services.impl;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -31,6 +33,47 @@ namespace FestivalZnanostiApi.Controllers
             var details = await _accountService.GetAccount(_userContext.Id);
             return Ok(details);
         }
+
+        [Authorize]
+        [HttpPut]
+        [Route("ChangePassword/{id}")]
+        public async Task<ActionResult> ChangePassword(int id, ChangePasswordDto changePasswordDto)
+        {
+            if (id != changePasswordDto.AccountId)
+            {
+                return BadRequest("Account id mismatch!");
+            }
+
+
+            if (_userContext.Role == UserRole.Administrator)
+            {
+
+                //case: Admin changes his own password
+                if (id == _userContext.Id)
+                {
+                    await _accountService.ChangeMyPassword(changePasswordDto);
+                }
+
+                await _accountService.UserForgotPassword(changePasswordDto.AccountId, changePasswordDto.NewPassword, changePasswordDto.ConfirmNewPassword);
+            }
+
+            else if (_userContext.Role == UserRole.Submitter)
+            {
+
+                if (_userContext.Id != changePasswordDto.AccountId)
+                {
+                    return Forbid("You can change only your password!");
+                }
+
+                await _accountService.ChangeMyPassword(changePasswordDto);
+
+            }
+
+            return Ok("Lozinka uspješno promijenjena.");
+
+        }
+
+
 
         //ovo ostalo samo ovak stoji
         /*

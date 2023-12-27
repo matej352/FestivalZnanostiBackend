@@ -16,6 +16,24 @@ namespace FestivalZnanostiApi.Repositories.impl
             _context = context;
         }
 
+        public async Task ChangePassword(int accountId, string password)
+        {
+            string hash = null;
+            string salt = null;
+
+            var passwordHashingHandler = new PasswordHashingHandler(password);
+            passwordHashingHandler.CreatePasswordHash(out byte[] passwordHash, out byte[] passwordSalt);
+
+            hash = Convert.ToBase64String(passwordHash);
+            salt = Convert.ToBase64String(passwordSalt);
+
+            var account = await _context.Account.FirstOrDefaultAsync(acc => acc.Id == accountId);
+
+            account!.Password = hash;
+            account!.Salt = salt;
+
+            await _context.SaveChangesAsync();
+        }
 
         public async Task<int> CreateAccount(RegisterDto registerDto)
         {

@@ -12,5 +12,7 @@ namespace FestivalZnanostiApi.Repositories
 
 
         public Task<Account?> GetAccount(int id);
+
+        public Task ChangePassword(int accountId, string password);
     }
 }

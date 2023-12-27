@@ -57,5 +57,14 @@ namespace FestivalZnanostiApi.Servicess.impl
         {
             return _repo.GetFestivalYear(festivalYearId);
         }
+
+        public async Task<FestivalYearDto> UpdateFestivalYear(UpdateFestivalYearDto updateFestivalYearDto)
+        {
+            var id = await _repo.UpdateFestivalYear(updateFestivalYearDto);
+
+            var _fy = await _repo.GetFestivalYear(id);
+
+            return _fy;
+        }
     }
 }

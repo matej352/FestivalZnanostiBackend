@@ -10,5 +10,9 @@ namespace FestivalZnanostiApi.Services
         public Task<Account?> GetAccountByEmail(string email);
 
         public Task<AccountDto> GetAccount(int id);
+
+        public Task UserForgotPassword(int accountId, string NewPassword, string ConfirmNewPassword);
+
+        public Task ChangeMyPassword(ChangePasswordDto changePasswordDto);
     }
 }

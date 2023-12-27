@@ -18,6 +18,7 @@ namespace FestivalZnanostiApi.DTOs.Extensions
                 Description = fy.Description,
                 StartDate = fy.StartDate,
                 EndDate = fy.EndDate,
+                ApplicationStart = fy.ApplicationStart,
                 EditUntil = fy.EditUntil
             };
         }

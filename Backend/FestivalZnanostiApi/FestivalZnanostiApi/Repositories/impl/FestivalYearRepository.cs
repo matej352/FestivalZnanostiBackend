@@ -101,5 +101,62 @@ namespace FestivalZnanostiApi.Repositories.impl
             return festival.AsFestivalYearDto();
         }
 
+        public async Task<int> UpdateFestivalYear(UpdateFestivalYearDto updateFestivalYear)
+        {
+            using (var transaction = _context.Database.BeginTransaction())
+            {
+                try
+                {
+
+
+                    // Retrieve the existing festival year
+                    var existingFestivalYear = await _context.FestivalYear
+                        .FirstOrDefaultAsync(fy => fy.Id == updateFestivalYear.Id);
+
+                    if (existingFestivalYear == null)
+                    {
+                        throw new Exception($"Festival year with ID {updateFestivalYear.Id} not found.");
+                    }
+
+                    // Dates Validation 
+                    if (updateFestivalYear.ApplicationStart > updateFestivalYear.EditUntil || updateFestivalYear.ApplicationStart > existingFestivalYear.EditUntil ||
+                        updateFestivalYear.EditUntil < updateFestivalYear.ApplicationStart || updateFestivalYear.EditUntil < existingFestivalYear.ApplicationStart)
+                    {
+                        throw new Exception($"ApplicationStart should be before EditUntil.");
+                    }
+
+
+
+                    if (updateFestivalYear.ApplicationStart > existingFestivalYear.StartDate || updateFestivalYear.ApplicationStart > existingFestivalYear.EndDate ||
+                        updateFestivalYear.EditUntil > existingFestivalYear.StartDate || updateFestivalYear.EditUntil > existingFestivalYear.EndDate)
+                    {
+                        throw new Exception($"Both ApplicationStart and EditUntil should be before StartDate and EndDate");
+                    }
+
+
+
+
+                    // Update the existing festival year properties
+                    existingFestivalYear.Title = updateFestivalYear.Title ?? existingFestivalYear.Title;
+                    existingFestivalYear.Topic = updateFestivalYear.Topic ?? existingFestivalYear.Topic;
+                    existingFestivalYear.Description = updateFestivalYear.Description ?? existingFestivalYear.Description;
+                    existingFestivalYear.ApplicationStart = updateFestivalYear.ApplicationStart ?? existingFestivalYear.ApplicationStart;
+                    existingFestivalYear.EditUntil = updateFestivalYear.EditUntil ?? existingFestivalYear.EditUntil;
+
+
+                    await _context.SaveChangesAsync();
+
+                    transaction.Commit();
+
+                    return existingFestivalYear.Id;
+                }
+                catch (Exception exception)
+                {
+                    transaction.Rollback();
+                    throw new Exception($"Problem while updating FestivalYear with ID {updateFestivalYear.Id}! \n" + exception.Message);
+                }
+            }
+        }
+
     }
 }
