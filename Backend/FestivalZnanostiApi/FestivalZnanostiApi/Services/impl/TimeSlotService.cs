@@ -15,8 +15,8 @@ namespace FestivalZnanostiApi.Services.impl
 
         private readonly IFestivalYearRepository _festivalYearRepository;
 
-        public const int WINDOW_START = 8;
-        public const int WINDOW_END = 11;
+        public const int WINDOW_START = 10;
+        public const int WINDOW_END = 20;
 
 
         // TODO: Ovo treba dohvatiti iz baze (dohvati lokacije koje TimeSlotsTracked = 1)
