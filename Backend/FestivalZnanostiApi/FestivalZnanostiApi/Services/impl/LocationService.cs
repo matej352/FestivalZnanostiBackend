@@ -81,6 +81,16 @@ namespace FestivalZnanostiApi.Services.impl
         {
             if (locationIds.Contains(mergeIntoLocationId))
             {
+
+                var unmergableLocationIds = (await _locationRepository.GetLocationsWithTrackedTimeslots()).Select(location => location.Id).Append(1);
+
+                bool unmergableLocationIdFound = unmergableLocationIds.Intersect(locationIds).Any();
+
+                if (unmergableLocationIdFound)
+                {
+                    throw new Exception("Locations you are trying to merge can not be merged!");
+                }
+
                 var mergeIntoLocation = _locationRepository.FindById(mergeIntoLocationId);
 
                 if (mergeIntoLocation == null)

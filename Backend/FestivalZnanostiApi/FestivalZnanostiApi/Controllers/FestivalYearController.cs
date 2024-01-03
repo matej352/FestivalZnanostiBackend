@@ -57,7 +57,7 @@ namespace FestivalZnanostiApi.Controllers
                 return BadRequest(validationResult.Errors);
             }
 
-            var newFestivalYear = _festivalYearService.CreateFestivalYear(FestivalYear);
+            var newFestivalYear = await _festivalYearService.CreateFestivalYear(FestivalYear);
             return Ok(newFestivalYear);
         }
 

@@ -20,20 +20,21 @@ namespace FestivalZnanostiApi.Servicess.impl
             _timeSlotService = timeSlotService;
         }
 
-        public Task<FestivalYearDto> CreateFestivalYear(CreateFestivalYearDto festivalYear)
+        public async Task<FestivalYearDto> CreateFestivalYear(CreateFestivalYearDto festivalYear)
         {
             try
             {
 
-                var id = _repo.CreateFestivalYear(festivalYear).Result;
+                var id = await _repo.CreateFestivalYear(festivalYear);
 
 
                 // create timeslots for new year of festival
-                _timeSlotService.CreateTimeSlots(festivalYear.StartDate, festivalYear.EndDate);
+                await _timeSlotService.CreateTimeSlots(festivalYear.StartDate, festivalYear.EndDate, id);
 
 
                 FestivalYear createdFestivalYear = _repo.FindById(id).Result;
-                return Task.FromResult(createdFestivalYear.AsFestivalYearDto());
+
+                return createdFestivalYear.AsFestivalYearDto();
 
             }
             catch (Exception ex)

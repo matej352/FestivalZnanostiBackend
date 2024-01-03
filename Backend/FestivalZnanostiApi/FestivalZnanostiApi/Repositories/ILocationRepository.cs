@@ -7,6 +7,8 @@ namespace FestivalZnanostiApi.Repositories
     {
         public Task<IEnumerable<Location>> GetLocations();
 
+        public Task<IEnumerable<Location>> GetLocationsWithTrackedTimeslots();
+
         public Task<IEnumerable<Location>> GetParentLocations();
 
         public Task<IEnumerable<Location>> GetChildLocations(int parentId);

@@ -2,6 +2,7 @@
 using FestivalZnanostiApi.Enums;
 using FestivalZnanostiApi.Models;
 using FestivalZnanostiApi.Repositories;
+using FestivalZnanostiApi.Repositories.impl;
 using FestivalZnanostiApi.Servicess;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ namespace FestivalZnanostiApi.Services.impl
     {
 
         private readonly ITimeSlotRepository _repo;
+        private readonly ILocationRepository _locationRepository;
 
         private readonly IFestivalYearRepository _festivalYearRepository;
 
@@ -19,47 +21,26 @@ namespace FestivalZnanostiApi.Services.impl
         public const int WINDOW_END = 20;
 
 
-        // TODO: Ovo treba dohvatiti iz baze (dohvati lokacije koje TimeSlotsTracked = 1)
-        private readonly List<LocationTemp> _LocationTempList = new List<LocationTemp>()
-        {
-            new LocationTemp
-            {
-                Id = 2,
-                Name = "Kino dvorana",
-                EventDuration = 45
-            },
-            new LocationTemp
-            {
-                Id = 3,
-                Name = "Izložbena dvorana",
-                EventDuration = 30
-            },
-             new LocationTemp
-            {
-                Id = 4,
-                Name = "Dvorište",
-                EventDuration = 30
-            }
-        };
-
-
-        public TimeSlotService(ITimeSlotRepository timeSlotRepository, IFestivalYearRepository festivalYearRepository)
+        public TimeSlotService(ITimeSlotRepository timeSlotRepository, IFestivalYearRepository festivalYearRepository, ILocationRepository locationRepository)
         {
             _repo = timeSlotRepository;
             _festivalYearRepository = festivalYearRepository;
+            _locationRepository = locationRepository;
         }
 
-        public async Task CreateTimeSlots(DateTime startDate, DateTime endDate)
+        public async Task CreateTimeSlots(DateTime startDate, DateTime endDate, int festivalYearId)
         {
 
             List<TimeSlotTemp> timeSlots = new List<TimeSlotTemp>();
 
-            foreach (var locationTemp in _LocationTempList)
+            var locationsWithTrackedTimeslots = await _locationRepository.GetLocationsWithTrackedTimeslots();
+
+            foreach (var locationTemp in locationsWithTrackedTimeslots)
             {
-                timeSlots.AddRange(GenerateTimeSlots(startDate, endDate, locationTemp));    //create timeslots for locations on which we track parallel events count (locations with TimeSlotTracked = 1 --> Locations in Tehnički muzej)
+                timeSlots.AddRange(GenerateTimeSlots(startDate, endDate, locationTemp, festivalYearId));    //create timeslots for locations on which we track parallel events count (locations with TimeSlotTracked = 1 --> Locations in Tehnički muzej)
             }
 
-            timeSlots.AddRange(GenerateNonTrackableTimeSlots(startDate, endDate));    //create timeslots for locations on which we DO NOT track parallel events count (locations with TimeSlotTracked = 0 --> Locations outside of Tehnički muzej)
+            timeSlots.AddRange(GenerateNonTrackableTimeSlots(startDate, endDate, festivalYearId));    //create timeslots for locations on which we DO NOT track parallel events count (locations with TimeSlotTracked = 0 --> Locations outside of Tehnički muzej)
 
 
             await _repo.SaveTimeSlots(timeSlots);
@@ -76,7 +57,7 @@ namespace FestivalZnanostiApi.Services.impl
 
 
 
-        public List<TimeSlotTemp> GenerateTimeSlots(DateTime startDate, DateTime endDate, LocationTemp location)   // for example: 20/21/2023 at midnight (12am)
+        public List<TimeSlotTemp> GenerateTimeSlots(DateTime startDate, DateTime endDate, Location location, int festivalYearId)   // for example: 20/21/2023 at midnight (12am)
         {
             var timeSlots = new List<TimeSlotTemp>();
 
@@ -93,7 +74,8 @@ namespace FestivalZnanostiApi.Services.impl
                     {
                         StartTime = startTime,
                         EndTime = startTime.AddMinutes((int)location.EventDuration),
-                        LocationId = location.Id
+                        LocationId = location.Id,
+                        FestivalYearId = festivalYearId
                     };
 
                     timeSlots.Add(slot);
@@ -105,7 +87,7 @@ namespace FestivalZnanostiApi.Services.impl
         }
 
 
-        public List<TimeSlotTemp> GenerateNonTrackableTimeSlots(DateTime startDate, DateTime endDate)   // for example: 20/21/2023 at midnight (12am)
+        public List<TimeSlotTemp> GenerateNonTrackableTimeSlots(DateTime startDate, DateTime endDate, int festivalYearId)   // for example: 20/21/2023 at midnight (12am)
         {
             var timeSlots = new List<TimeSlotTemp>();
 
@@ -121,7 +103,8 @@ namespace FestivalZnanostiApi.Services.impl
                     var slot = new TimeSlotTemp
                     {
                         StartTime = startTime,
-                        EndTime = startTime.AddMinutes(60)
+                        EndTime = startTime.AddMinutes(60),
+                        FestivalYearId = festivalYearId
                     };
 
                     timeSlots.Add(slot);
@@ -148,6 +131,7 @@ public class TimeSlotTemp
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
     public int? LocationId { get; set; }
+    public int FestivalYearId { get; set; }
 }
 
 public class LocationTemp

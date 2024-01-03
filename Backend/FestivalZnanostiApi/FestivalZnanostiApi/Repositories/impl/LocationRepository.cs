@@ -29,6 +29,11 @@ namespace FestivalZnanostiApi.Repositories.impl
             return await _context.Location.ToListAsync();
         }
 
+        public async Task<IEnumerable<Location>> GetLocationsWithTrackedTimeslots()
+        {
+            return await _context.Location.Where(l => l.TimeSlotsTracked).ToListAsync();
+        }
+
 
         public async Task<IEnumerable<Location>> GetChildLocations(int parentId)
         {

@@ -57,7 +57,8 @@ namespace FestivalZnanostiApi.Repositories.impl
             {
                 Start = timeSlot.StartTime,
                 BookedCount = 0,
-                LocationId = timeSlot.LocationId
+                LocationId = timeSlot.LocationId,
+                FestivalYearId = timeSlot.FestivalYearId,
             });
 
 
