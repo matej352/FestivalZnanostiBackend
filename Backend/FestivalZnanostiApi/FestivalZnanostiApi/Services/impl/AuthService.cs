@@ -38,7 +38,7 @@ namespace FestivalZnanostiApi.Services.impl
             var emailUnque = await isEmailUnique(registerDto.Email);
             if (!emailUnque)
             {
-                throw new Exception($"Account with email {registerDto.Email} already existst");
+                throw new Exception($"Korisnički račun sa email adresom {registerDto.Email} već postoji.");
             }
 
             var newAccountId = await _accountService.CreateAccount(registerDto);

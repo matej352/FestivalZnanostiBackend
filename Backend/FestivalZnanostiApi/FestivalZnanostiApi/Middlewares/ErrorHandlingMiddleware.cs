@@ -26,7 +26,7 @@ namespace FestivalZnanostiApi.Middlewares
                 context.Response.ContentType = "application/json";
                 context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
 
-                var response = new ErrorResponse { Message = ex.Message };
+                var response = new ErrorResponse { message = ex.Message };
                 await context.Response.WriteAsync(JsonConvert.SerializeObject(response));
             }
         }
@@ -34,6 +34,6 @@ namespace FestivalZnanostiApi.Middlewares
 
     public class ErrorResponse
     {
-        public string Message { get; set; }
+        public string message { get; set; }
     }
 }
