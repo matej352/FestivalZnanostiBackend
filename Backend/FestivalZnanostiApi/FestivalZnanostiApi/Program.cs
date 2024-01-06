@@ -23,6 +23,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     .AddCookie(options =>
     {
         options.Cookie.Name = "FestivalZnanostiCookie";
+        options.Cookie.SameSite = SameSiteMode.None;
         options.Events = new CookieAuthenticationEvents
         {
             OnRedirectToLogin = context =>
