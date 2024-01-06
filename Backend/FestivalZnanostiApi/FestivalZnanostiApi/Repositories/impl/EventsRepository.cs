@@ -118,6 +118,27 @@ namespace FestivalZnanostiApi.Repositories.impl
                     List<TimeSlot> timeSlots = await _context.TimeSlot
                         .Where(ts => timeSlotIds.Contains(ts.Id))
                         .ToListAsync();
+
+                    // Check are given timeslots timeslots for the proper location
+                    if (!timeSlotsTracked)
+                    {
+                        bool allHaveNullLocationId = timeSlots.All(slot => slot.LocationId == null);
+                        if (!allHaveNullLocationId)
+                        {
+                            throw new Exception("Not all timeslots correspond to the given event location!");
+                        }
+                    }
+                    else
+                    {
+                        bool allHaveProperLocationId = timeSlots.All(slot => slot.LocationId == location.Id);
+                        if (!allHaveProperLocationId)
+                        {
+                            throw new Exception("Not all timeslots correspond to the given event location!");
+                        }
+                    }
+
+
+
                     List<int> participantsAgesIds = createEvent.ParticipantsAges.Select(dto => dto.Id).ToList();
                     List<ParticipantsAge> participantsAges = await _context.ParticipantsAge
                         .Where(pa => participantsAgesIds.Contains(pa.Id))
