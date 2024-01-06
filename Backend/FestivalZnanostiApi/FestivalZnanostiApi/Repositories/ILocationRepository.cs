@@ -21,6 +21,8 @@ namespace FestivalZnanostiApi.Repositories
 
         public Task<Location?> FindById(int locationId);
 
+        public Task DeleteLocation(int locationId);
+
         public Task MergeLocations(List<int> locationIds, int mergeIntoLocationId);
 
     }

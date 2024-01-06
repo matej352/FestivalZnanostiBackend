@@ -2,6 +2,7 @@
 using FestivalZnanostiApi.Enums;
 using FestivalZnanostiApi.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace FestivalZnanostiApi.Repositories.impl
 {
@@ -132,5 +133,35 @@ namespace FestivalZnanostiApi.Repositories.impl
             }
         }
 
+        public async Task DeleteLocation(int locationId)
+        {
+
+            var childrenLocationsIds = await _context.Location
+                .Where(l => l.ParentLocationId == locationId)
+                .Select(l => l.Id)
+                .ToListAsync();
+
+            var eventsOnLocationsThatAreChildrenOfLocationForDelete = await _context.Event.FirstOrDefaultAsync(e => childrenLocationsIds.Contains(e.LocationId));
+            if (eventsOnLocationsThatAreChildrenOfLocationForDelete != null)
+            {
+                throw new Exception("Nije moguće obrisati lokaciju jer postoje događaji koji se odvijaju na njenim podlokacijama!");
+            }
+
+            var eventsOnLocationForDelete = await _context.Event.FirstOrDefaultAsync(e => e.LocationId == locationId);
+            if (eventsOnLocationForDelete != null)
+            {
+                throw new Exception("Nije moguće obrisati lokaciju na kojoj se odvijaju događaji!");
+            }
+
+            var locationToDelete = await _context.Location.FindAsync(locationId);
+
+            if (locationToDelete != null)
+            {
+                _context.Location.Remove(locationToDelete);
+                await _context.SaveChangesAsync();
+            }
+
+
+        }
     }
 }

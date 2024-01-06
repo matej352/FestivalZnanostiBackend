@@ -12,6 +12,8 @@ namespace FestivalZnanostiApi.Services
 
         public Task<LocationDto> GetLocation(int id);
 
+        public Task DeleteLocation(int id);
+
         public Task<LocationDto> CreateParentLocation(string locationName);
 
         public Task<LocationDto> CreateChildLocation(string locationName, int parentId);

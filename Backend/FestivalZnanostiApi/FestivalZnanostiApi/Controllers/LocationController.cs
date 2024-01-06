@@ -50,6 +50,15 @@ namespace FestivalZnanostiApi.Controllers
             return location;
         }
 
+        [HttpDelete]
+        [Route("Delete")]
+        public async Task<ActionResult> DeleteLocation(int locationId)
+        {
+            await _locationService.DeleteLocation(locationId);
+
+            return NoContent();
+        }
+
 
 
         /*[HttpGet]

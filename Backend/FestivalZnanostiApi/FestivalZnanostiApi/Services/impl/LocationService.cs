@@ -120,5 +120,19 @@ namespace FestivalZnanostiApi.Services.impl
             return location.AsLocationDto();
 
         }
+
+        public async Task DeleteLocation(int id)
+        {
+            var location = await _locationRepository.FindById(id);
+
+            if (location == null)
+            {
+                throw new Exception($"Location with id = {id} does not exist!");
+            }
+
+            await _locationRepository.DeleteLocation(location.Id);
+
+
+        }
     }
 }
