@@ -1,4 +1,5 @@
 ﻿using FestivalZnanostiApi.DTOs;
+using FestivalZnanostiApi.Enums;
 using FestivalZnanostiApi.Models;
 
 namespace FestivalZnanostiApi.Repositories
@@ -16,6 +17,8 @@ namespace FestivalZnanostiApi.Repositories
         public Task<FestivalYearDto> FindActiveFestivalYear();
 
         public Task<int> UpdateFestivalYear(UpdateFestivalYearDto updateFestivalYear);
+
+        public Task ChangeFestivalYearActiveStatus(int id, FestivalYearActivityStatus active);
 
     }
 }

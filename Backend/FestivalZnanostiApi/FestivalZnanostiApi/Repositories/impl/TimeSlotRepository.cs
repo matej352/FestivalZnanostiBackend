@@ -13,7 +13,7 @@ namespace FestivalZnanostiApi.Repositories.impl
             _context = context;
         }
 
-        public async Task<IEnumerable<TimeSlotDto>> GetAvailableTimeSlots(int locationId, DateTime start, DateTime end)
+        public async Task<IEnumerable<TimeSlotDto>> GetAvailableTimeSlots(int locationId, int activeFestivalYearId)
         {
 
             IEnumerable<TimeSlotDto> availableTimeSlots;
@@ -23,7 +23,7 @@ namespace FestivalZnanostiApi.Repositories.impl
             {
                 availableTimeSlots = await _context.TimeSlot
                            .Where(ts => ts.LocationId == null &&
-                                   ts.Start >= start && ts.Start <= end)
+                                  ts.FestivalYearId == activeFestivalYearId)
                            .Select(ts => new TimeSlotDto
                            {
                                Id = ts.Id,
@@ -36,7 +36,7 @@ namespace FestivalZnanostiApi.Repositories.impl
             {
                 availableTimeSlots = await _context.TimeSlot
                             .Where(ts => ts.LocationId == locationId &&
-                                    ts.Start >= start && ts.Start <= end &&
+                                    ts.FestivalYearId == activeFestivalYearId &&
                                     ts.BookedCount < ts.Location.ParallelEventCount)
                             .Select(ts => new TimeSlotDto
                             {

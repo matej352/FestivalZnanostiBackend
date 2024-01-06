@@ -119,7 +119,7 @@ namespace FestivalZnanostiApi.Services.impl
         {
             var festivalYear = await _festivalYearRepository.FindActiveFestivalYear();
 
-            return await _repo.GetAvailableTimeSlots(locationId, festivalYear.StartDate, festivalYear.EndDate);
+            return await _repo.GetAvailableTimeSlots(locationId, festivalYear.Id);
         }
     }
 

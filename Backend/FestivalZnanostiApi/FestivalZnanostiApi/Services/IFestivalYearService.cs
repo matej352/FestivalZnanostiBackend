@@ -1,4 +1,5 @@
 ﻿using FestivalZnanostiApi.DTOs;
+using FestivalZnanostiApi.Enums;
 using FestivalZnanostiApi.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,6 +16,8 @@ namespace FestivalZnanostiApi.Servicess
         public Task<FestivalYearDto> GetActiveFestivalYear();
 
         public Task<FestivalYearDto> UpdateFestivalYear(UpdateFestivalYearDto updateFestivalYear);
+
+        public Task ChangeFestivalYearActiveStatus(int id, FestivalYearActivityStatus active);
 
 
     }

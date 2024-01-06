@@ -10,7 +10,7 @@ namespace FestivalZnanostiApi.Repositories
 
 
 
-        public Task<IEnumerable<TimeSlotDto>> GetAvailableTimeSlots(int locationId, DateTime start, DateTime end);
+        public Task<IEnumerable<TimeSlotDto>> GetAvailableTimeSlots(int locationId, int activeFestivalYearId);
 
 
     }

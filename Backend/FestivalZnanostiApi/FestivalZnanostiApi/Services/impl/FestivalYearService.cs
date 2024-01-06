@@ -1,5 +1,6 @@
 ﻿using FestivalZnanostiApi.DTOs;
 using FestivalZnanostiApi.DTOs.Extensions;
+using FestivalZnanostiApi.Enums;
 using FestivalZnanostiApi.Models;
 using FestivalZnanostiApi.Repositories;
 using FestivalZnanostiApi.Repositories.impl;
@@ -66,6 +67,11 @@ namespace FestivalZnanostiApi.Servicess.impl
             var _fy = await _repo.GetFestivalYear(id);
 
             return _fy;
+        }
+
+        public async Task ChangeFestivalYearActiveStatus(int id, FestivalYearActivityStatus active)
+        {
+            await _repo.ChangeFestivalYearActiveStatus(id, active);
         }
     }
 }

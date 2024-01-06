@@ -77,5 +77,17 @@ namespace FestivalZnanostiApi.Controllers
 
 
         }
+
+        //[Authorize(Roles = "Administrator")]
+        [HttpPut]
+        [Route("changeStatus/{id}")]
+        public async Task<ActionResult> ChangeFestivalYearStatus(int id, ChangeFestivalYearStatusDto festivalYearStatus)
+        {
+
+            await _festivalYearService.ChangeFestivalYearActiveStatus(id, festivalYearStatus.status);
+
+            return Ok();
+
+        }
     }
 }

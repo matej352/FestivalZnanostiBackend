@@ -1,5 +1,6 @@
 ﻿using FestivalZnanostiApi.DTOs;
 using FestivalZnanostiApi.DTOs.Extensions;
+using FestivalZnanostiApi.Enums;
 using FestivalZnanostiApi.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -34,8 +35,8 @@ namespace FestivalZnanostiApi.Repositories.impl
                 Description = festivalYear.Description,
                 StartDate = festivalYear.StartDate.Date,
                 EndDate = festivalYear.EndDate.Date.AddDays(1),  //istestirao i to je to
-                EditUntil = festivalYear.StartDate.Date.AddDays(-21), // submitter može editirat svoj event sve do 3 tjedna prije početka festivala (ili i uvest mogućnost da admin odabere do kada), admin može editirati sve evente čitavo vrijeme
-                ApplicationStart = festivalYear.StartDate.Date.AddDays(-70), // 10 tjedana prije nego počinje festival znanosti otvaraju se prijave
+                EditUntil = festivalYear.EditUntil ?? festivalYear.StartDate.Date.AddDays(-21), // submitter može editirat svoj event sve do 3 tjedna prije početka festivala (ili i uvest mogućnost da admin odabere do kada), admin može editirati sve evente čitavo vrijeme
+                ApplicationStart = festivalYear.ApplicationStart,
             };
 
             if (festivalYear.Active == 1)
@@ -158,5 +159,35 @@ namespace FestivalZnanostiApi.Repositories.impl
             }
         }
 
+        public async Task ChangeFestivalYearActiveStatus(int id, FestivalYearActivityStatus active)
+        {
+            // Retrieve the existing festival year
+            var festivalYear = await _context.FestivalYear
+                .FirstOrDefaultAsync(fy => fy.Id == id);
+
+
+            if (festivalYear == null)
+            {
+                throw new Exception($"Festival year with ID {id} not found.");
+            }
+
+            if (active == FestivalYearActivityStatus.Active)
+            {
+                // Set Active to 0 for every other festival year because at a time only 1 festival year can be active
+                var activeFestivalYears = await _context.FestivalYear
+                    .Where(fy => fy.Active == 1)
+                    .ToListAsync();
+
+                foreach (var activeFestivalYear in activeFestivalYears)
+                {
+                    activeFestivalYear.Active = 0;
+                }
+            }
+
+            festivalYear.Active = (int)active;
+
+            await _context.SaveChangesAsync();
+
+        }
     }
 }
