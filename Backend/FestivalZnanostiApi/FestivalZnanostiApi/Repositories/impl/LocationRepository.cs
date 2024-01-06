@@ -19,7 +19,7 @@ namespace FestivalZnanostiApi.Repositories.impl
         }
         public async Task<Location?> FindById(int locationId)
         {
-            return await _context.Location.FindAsync(locationId);
+            return await _context.Location.Include(l => l.ParentLocation).FirstOrDefaultAsync(l => l.Id == locationId);
         }
 
 

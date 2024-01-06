@@ -10,6 +10,8 @@ namespace FestivalZnanostiApi.Services
 
         public Task<IEnumerable<LocationDto>> GetChildLocations(int parentId);
 
+        public Task<LocationDto> GetLocation(int id);
+
         public Task<LocationDto> CreateParentLocation(string locationName);
 
         public Task<LocationDto> CreateChildLocation(string locationName, int parentId);

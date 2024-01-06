@@ -91,11 +91,11 @@ namespace FestivalZnanostiApi.Services.impl
                     throw new Exception("Locations you are trying to merge can not be merged!");
                 }
 
-                var mergeIntoLocation = _locationRepository.FindById(mergeIntoLocationId);
+                var mergeIntoLocation = await _locationRepository.FindById(mergeIntoLocationId);
 
                 if (mergeIntoLocation == null)
                 {
-                    throw new Exception("Location you are thrying to merge other locations in does not exist!");
+                    throw new Exception("Location you are trying to merge other locations in does not exist!");
                 }
 
                 await _locationRepository.MergeLocations(locationIds, mergeIntoLocationId);
@@ -106,6 +106,19 @@ namespace FestivalZnanostiApi.Services.impl
             {
                 throw new Exception("No intersection between locationIds and mergeIntoLocationId!");
             }
+        }
+
+        public async Task<LocationDto> GetLocation(int id)
+        {
+            var location = await _locationRepository.FindById(id);
+
+            if (location == null)
+            {
+                throw new Exception($"Location with id = {id} does not exist!");
+            }
+
+            return location.AsLocationDto();
+
         }
     }
 }

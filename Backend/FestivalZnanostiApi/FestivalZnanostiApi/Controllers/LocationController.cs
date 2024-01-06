@@ -41,6 +41,15 @@ namespace FestivalZnanostiApi.Controllers
             return locations;
         }
 
+        [HttpGet]
+        [Route("Details")]
+        public async Task<LocationDto> GetLocation(int locationId)
+        {
+            var location = await _locationService.GetLocation(locationId);
+
+            return location;
+        }
+
 
 
         /*[HttpGet]
