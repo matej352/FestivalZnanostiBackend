@@ -26,6 +26,6 @@ namespace FestivalZnanostiApi.DTOs
 
         public List<ParticipantsAgeDto> ParticipantsAges { get; set; }
 
-        public List<TimeSlotDto> TimeSlots { get; set; }
+        public List<int> TimeSlotIds { get; set; }
     }
 }

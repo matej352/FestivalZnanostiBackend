@@ -107,14 +107,14 @@ namespace FestivalZnanostiApi.Repositories.impl
 
 
                     //  VALIDATION - event timeslots are provided
-                    if (createEvent.TimeSlots is null)
+                    if (createEvent.TimeSlotIds is null)
                     {
                         throw new Exception("Timeslots are required for creating Event!");
                     }
 
 
                     //get models from dtos
-                    List<int> timeSlotIds = createEvent.TimeSlots.Select(dto => dto.Id).ToList();
+                    List<int> timeSlotIds = createEvent.TimeSlotIds;
                     List<TimeSlot> timeSlots = await _context.TimeSlot
                         .Where(ts => timeSlotIds.Contains(ts.Id))
                         .ToListAsync();
@@ -214,7 +214,7 @@ namespace FestivalZnanostiApi.Repositories.impl
 
                     if (timeSlotsTracked)
                     {
-                        await IncrementTimeSlotBookedCount(createEvent.TimeSlots, createEvent.LocationId, location.ParallelEventCount);
+                        await IncrementTimeSlotBookedCount(createEvent.TimeSlotIds, createEvent.LocationId, location.ParallelEventCount);
                     }
 
                     transaction.Commit();
@@ -276,7 +276,7 @@ namespace FestivalZnanostiApi.Repositories.impl
                     var timeSlotsTracked = location.TimeSlotsTracked;
 
                     //get models from dtos
-                    List<int> timeSlotIds = updateEvent.TimeSlots.Select(dto => dto.Id).ToList();
+                    List<int> timeSlotIds = updateEvent.TimeSlotIds;
                     List<TimeSlot> timeSlots = await _context.TimeSlot
                         .Where(ts => timeSlotIds.Contains(ts.Id))
                         .ToListAsync();
@@ -330,7 +330,7 @@ namespace FestivalZnanostiApi.Repositories.impl
 
 
 
-                    await DecrementTimeSlotBookedCount(existingEvent.TimeSlot.ToList(), existingEvent.LocationId);
+                    await DecrementTimeSlotBookedCount(existingEvent.TimeSlot.Select(t => t.Id).ToList(), existingEvent.LocationId);
 
                     existingEvent.LocationId = updateEvent.LocationId;
 
@@ -340,7 +340,7 @@ namespace FestivalZnanostiApi.Repositories.impl
 
 
 
-                    if (updateEvent.TimeSlots != null)
+                    if (updateEvent.TimeSlotIds != null)
                     {
 
                         foreach (var timeSlot in timeSlots)
@@ -356,7 +356,7 @@ namespace FestivalZnanostiApi.Repositories.impl
                     if (timeSlotsTracked)
                     {
 
-                        await IncrementTimeSlotBookedCount(updateEvent.TimeSlots, updateEvent.LocationId, location.ParallelEventCount);
+                        await IncrementTimeSlotBookedCount(updateEvent.TimeSlotIds, updateEvent.LocationId, location.ParallelEventCount);
 
                     }
 
@@ -479,7 +479,7 @@ namespace FestivalZnanostiApi.Repositories.impl
                     if (dbEvent != null)
                     {
 
-                        await DecrementTimeSlotBookedCount(dbEvent.TimeSlot.ToList(), dbEvent.LocationId);
+                        await DecrementTimeSlotBookedCount(dbEvent.TimeSlot.Select(t => t.Id).ToList(), dbEvent.LocationId);
 
 
 
@@ -517,12 +517,12 @@ namespace FestivalZnanostiApi.Repositories.impl
 
 
 
-        private async Task IncrementTimeSlotBookedCount(List<TimeSlotDto> timeslots, int locationId, int parallelEventCount)
+        private async Task IncrementTimeSlotBookedCount(List<int> timeslotIds, int locationId, int parallelEventCount)
         {
-            foreach (var timeSlot in timeslots)
+            foreach (var timeSlotId in timeslotIds)
             {
                 var foundTimeSlot = await _context.TimeSlot
-                    .Where(ts => ts.Id == timeSlot.Id && ts.LocationId == locationId)
+                    .Where(ts => ts.Id == timeSlotId && ts.LocationId == locationId)
                     .FirstOrDefaultAsync();
 
                 if (foundTimeSlot != null)
@@ -540,12 +540,12 @@ namespace FestivalZnanostiApi.Repositories.impl
         }
 
 
-        private async Task DecrementTimeSlotBookedCount(List<TimeSlot> timeslots, int locationId)
+        private async Task DecrementTimeSlotBookedCount(List<int> timeslotIds, int locationId)
         {
-            foreach (var timeSlot in timeslots)
+            foreach (var timeSlotId in timeslotIds)
             {
                 var foundTimeSlot = await _context.TimeSlot
-                    .Where(ts => ts.Id == timeSlot.Id && ts.LocationId == locationId)
+                    .Where(ts => ts.Id == timeSlotId && ts.LocationId == locationId)
                     .FirstOrDefaultAsync();
 
                 if (foundTimeSlot != null)

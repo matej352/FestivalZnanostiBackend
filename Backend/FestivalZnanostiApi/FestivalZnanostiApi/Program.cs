@@ -51,7 +51,9 @@ builder.Services.AddCors(c =>
                 "http://localhost:7282",
                 "http://localhost:3000",
                 "https://4ivliy722g3exbyg.myfritz.net:7282",
-                "https://festival-znanosti-zagreb.vercel.app")
+                "https://festival-znanosti-zagreb.vercel.app",
+                "https://festival-znanosti-zagreb.vercel.app/*",
+                "http://localhost:3000/*")
     // .AllowAnyOrigin()
     );
 });
