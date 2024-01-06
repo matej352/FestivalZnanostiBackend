@@ -34,7 +34,7 @@ namespace FestivalZnanostiApi.Repositories.impl
                 Topic = festivalYear.Topic,
                 Description = festivalYear.Description,
                 StartDate = festivalYear.StartDate.Date,
-                EndDate = festivalYear.EndDate.Date.AddDays(1),  //istestirao i to je to
+                EndDate = festivalYear.EndDate.Date,  //istestirao i to je to
                 EditUntil = festivalYear.EditUntil ?? festivalYear.StartDate.Date.AddDays(-21), // submitter može editirat svoj event sve do 3 tjedna prije početka festivala (ili i uvest mogućnost da admin odabere do kada), admin može editirati sve evente čitavo vrijeme
                 ApplicationStart = festivalYear.ApplicationStart,
             };
