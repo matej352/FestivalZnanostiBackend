@@ -22,13 +22,23 @@ namespace FestivalZnanostiApi.Controllers
 
 
         // GET: api/<TimeSlotsController>
-        // Dohvaćanje slobodnih termina na lokaciji sa id = locationId za aktivnu godinu (FestivalYear.Active = 1), ako se ne preda locationId onda se vraćaju svi termini za aktivnu godinu za koje ne pratimo popunjenost
+        // Dohvaćanje slobodnih termina na lokaciji sa id = locationId za aktivnu godinu (FestivalYear.Active = 1)
         [HttpGet]
         [Route("GetAvailableTimeSlots")]
-        public Task<IEnumerable<TimeSlotDto>> GetAvailableTimeSlots(int locationId)
+        public async Task<ActionResult<IEnumerable<TimeSlotDto>>> GetAvailableTimeSlots(int locationId, bool isIzlozba = false)     //ako se ne šalje, default je false
         {
-            var timeSlots = _timeSlotService.GetAvailableTimeSlots(locationId);
-            return timeSlots;
+            if (locationId == 1)
+            {
+                var response = new Response
+                {
+                    Message = "Lokacija Tehnički muzej Nikola Tesla se ne može odabrati!"
+                };
+
+                return BadRequest(response);
+            }
+
+            var timeSlots = await _timeSlotService.GetAvailableTimeSlots(locationId, isIzlozba);
+            return Ok(timeSlots);
         }
 
 

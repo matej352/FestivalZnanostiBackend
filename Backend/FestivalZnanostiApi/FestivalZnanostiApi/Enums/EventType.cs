@@ -5,6 +5,6 @@
         Predavanje = 0,
         Prezentacija = 1,
         Radionica = 2,
-        Izlozba = 4
+        Izlozba = 3
     }
 }

@@ -212,7 +212,7 @@ namespace FestivalZnanostiApi.Repositories.impl
 
 
 
-                    if (timeSlotsTracked)
+                    if (timeSlotsTracked && createEvent.Type != EventType.Izlozba)
                     {
                         await IncrementTimeSlotBookedCount(createEvent.TimeSlotIds, createEvent.LocationId, location.ParallelEventCount);
                     }
@@ -235,7 +235,7 @@ namespace FestivalZnanostiApi.Repositories.impl
 
         private void checkEventTypeAndLocationMatch(int locationId, EventType eventType)
         {
-            if ((eventType == EventType.Predavanje && locationId == 2) || ((eventType == EventType.Prezentacija || eventType == EventType.Radionica) && (locationId == 3 || locationId == 4)))
+            if ((eventType == EventType.Predavanje && locationId == 2) || ((eventType == EventType.Prezentacija || eventType == EventType.Radionica) && (locationId == 3 || locationId == 4)) || (eventType == EventType.Izlozba && locationId == 3))
             {
                 //everything ok
             }
@@ -255,6 +255,8 @@ namespace FestivalZnanostiApi.Repositories.impl
                     return "Prezentacija";
                 case 2:
                     return "Radionica";
+                case 3:
+                    return "Izložba";
                 default:
                     throw new Exception("Invalid event type");
             }
@@ -324,14 +326,14 @@ namespace FestivalZnanostiApi.Repositories.impl
 
 
 
+                    var trackedLocationsIds = await _context.Location.Where(l => l.TimeSlotsTracked).Select(l => l.Id).ToListAsync();
 
+                    if (existingEvent.Type != "Izložba" && trackedLocationsIds.Contains(existingEvent.LocationId))
+                    {
+                        await DecrementTimeSlotBookedCount(existingEvent.TimeSlot.Select(t => t.Id).ToList(), existingEvent.LocationId);
+                    }
 
                     existingEvent.Type = mapEventType(updateEvent.Type);
-
-
-
-                    await DecrementTimeSlotBookedCount(existingEvent.TimeSlot.Select(t => t.Id).ToList(), existingEvent.LocationId);
-
                     existingEvent.LocationId = updateEvent.LocationId;
 
 
@@ -353,7 +355,7 @@ namespace FestivalZnanostiApi.Repositories.impl
                         throw new Exception("Timeslots are required for updating Event!");
                     }
 
-                    if (timeSlotsTracked)
+                    if (timeSlotsTracked && updateEvent.Type != EventType.Izlozba)
                     {
 
                         await IncrementTimeSlotBookedCount(updateEvent.TimeSlotIds, updateEvent.LocationId, location.ParallelEventCount);

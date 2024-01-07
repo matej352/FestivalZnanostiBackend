@@ -13,13 +13,15 @@ namespace FestivalZnanostiApi.Repositories.impl
             _context = context;
         }
 
-        public async Task<IEnumerable<TimeSlotDto>> GetAvailableTimeSlots(int locationId, int activeFestivalYearId)
+        public async Task<IEnumerable<TimeSlotDto>> GetAvailableTimeSlots(int locationId, int activeFestivalYearId, bool isIzlozba)
         {
 
             IEnumerable<TimeSlotDto> availableTimeSlots;
 
+            var trackableLocationsIds = await _context.Location.Where(l => l.TimeSlotsTracked).Select(l => l.Id).ToListAsync();
+
             // Get timeslots for which we do not track BookedCount and Location
-            if (locationId == 0)
+            if (!trackableLocationsIds.Contains(locationId))
             {
                 availableTimeSlots = await _context.TimeSlot
                            .Where(ts => ts.LocationId == null &&
@@ -34,16 +36,33 @@ namespace FestivalZnanostiApi.Repositories.impl
             // Get timeslots for which we track BookedCount and Location
             else
             {
-                availableTimeSlots = await _context.TimeSlot
-                            .Where(ts => ts.LocationId == locationId &&
-                                    ts.FestivalYearId == activeFestivalYearId &&
-                                    ts.BookedCount < ts.Location.ParallelEventCount)
-                            .Select(ts => new TimeSlotDto
-                            {
-                                Id = ts.Id,
-                                Start = ts.Start,
-                            })
-                            .ToListAsync();
+                // Only if event type is Izlozba, then we do not trck BookedCount in Tehnicki Muzej
+                if (isIzlozba)
+                {
+                    availableTimeSlots = await _context.TimeSlot
+                          .Where(ts => ts.LocationId == locationId &&
+                                  ts.FestivalYearId == activeFestivalYearId
+                                 )
+                          .Select(ts => new TimeSlotDto
+                          {
+                              Id = ts.Id,
+                              Start = ts.Start,
+                          })
+                          .ToListAsync();
+                }
+                else
+                {
+                    availableTimeSlots = await _context.TimeSlot
+                           .Where(ts => ts.LocationId == locationId &&
+                                   ts.FestivalYearId == activeFestivalYearId &&
+                                   ts.BookedCount < ts.Location.ParallelEventCount)
+                           .Select(ts => new TimeSlotDto
+                           {
+                               Id = ts.Id,
+                               Start = ts.Start,
+                           })
+                           .ToListAsync();
+                }
 
             }
 

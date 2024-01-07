@@ -9,7 +9,7 @@ namespace FestivalZnanostiApi.Services
         public Task CreateTimeSlots(DateTime startDate, DateTime endDate, int festivalYearId);
 
 
-        public Task<IEnumerable<TimeSlotDto>> GetAvailableTimeSlots(int locationId);
+        public Task<IEnumerable<TimeSlotDto>> GetAvailableTimeSlots(int locationId, bool isIzlozba);
 
 
     }

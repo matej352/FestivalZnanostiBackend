@@ -115,11 +115,11 @@ namespace FestivalZnanostiApi.Services.impl
             return timeSlots;
         }
 
-        public async Task<IEnumerable<TimeSlotDto>> GetAvailableTimeSlots(int locationId)
+        public async Task<IEnumerable<TimeSlotDto>> GetAvailableTimeSlots(int locationId, bool isIzlozba)
         {
             var festivalYear = await _festivalYearRepository.FindActiveFestivalYear();
 
-            return await _repo.GetAvailableTimeSlots(locationId, festivalYear.Id);
+            return await _repo.GetAvailableTimeSlots(locationId, festivalYear.Id, isIzlozba);
         }
     }
 
