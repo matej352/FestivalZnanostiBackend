@@ -69,7 +69,12 @@ namespace FestivalZnanostiApi.Controllers
 
             }
 
-            return Ok("Lozinka uspješno promijenjena.");
+            var response = new Response
+            {
+                Message = "Lozinka uspješno promijenjena."
+            };
+
+            return Ok(response);
 
         }
 
