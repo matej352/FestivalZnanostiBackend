@@ -47,9 +47,9 @@ namespace FestivalZnanostiApi.Controllers
         //[Authorize(Roles = "Administrator")]
         [HttpGet]
         [Route("FestivalTable")]
-        public async Task<IActionResult> GenerateFestivalTable(int? festivalYear = null)
+        public async Task<IActionResult> GenerateFestivalTable(int? festivalYearId = null)
         {
-            var document = await _filesService.GenerateFestivalTable(festivalYear);
+            var document = await _filesService.GenerateFestivalTable(festivalYearId);
 
             // Set the Content-Disposition header to force download with a specific file name
             var contentDisposition = new ContentDisposition

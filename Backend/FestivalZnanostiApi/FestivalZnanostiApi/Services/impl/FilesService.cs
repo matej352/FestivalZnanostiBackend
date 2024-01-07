@@ -1,6 +1,7 @@
 ﻿using DinkToPdf;
 using DinkToPdf.Contracts;
 using FestivalZnanostiApi.DTOs;
+using FestivalZnanostiApi.Enums;
 using FestivalZnanostiApi.Models;
 using FestivalZnanostiApi.Servicess;
 using System.Globalization;
@@ -338,6 +339,7 @@ namespace FestivalZnanostiApi.Services.impl
                     {
 
                         string autoriOrPredavaciOrVoditelji = "";
+                        string participantAgeLabels = "";
 
                         switch (eventForPdf.Type)
                         {
@@ -367,11 +369,28 @@ namespace FestivalZnanostiApi.Services.impl
                             }
                         }
 
+                        if (eventForPdf.Type != "Izložba")
+                        {
+                            counter = 0;
+                            foreach (var participantAge in eventForPdf.ParticipantsAges)
+                            {
+                                counter++;
+                                participantAgeLabels += $"{participantAge.Label}";
+                                if (counter < eventForPdf.ParticipantsAges.Count)
+                                {
+                                    participantAgeLabels += ", ";
+                                }
+                            }
+                        }
+
+
+
+
                         sb.Append(@$"
                                   <tr>
                                         <td  style=""width: 15%;text-align: left;padding:10px"">{eventForPdf.TimePeriod}</td>        
                                         <td style=""width: 15%;text-align: left;padding:10px"" >{eventForPdf.Location}</td>       
-                                        <td style=""width: 15%;text-align: left;padding:10px"" >{eventForPdf.Type}</td>    
+                                        <td style=""width: 15%;text-align: left;padding:10px"" >{eventForPdf.Type} <br> {participantAgeLabels}</td>    
                                         <td style =""text - align: left; padding: 10px"" > {eventForPdf.Title}, {autoriOrPredavaciOrVoditelji}</ td >
                                   </tr>
                     ");
