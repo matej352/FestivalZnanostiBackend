@@ -4,6 +4,7 @@ using FestivalZnanostiApi.DTOs;
 using FestivalZnanostiApi.Enums;
 using FestivalZnanostiApi.Models;
 using FestivalZnanostiApi.Servicess;
+using System.Collections.Immutable;
 using System.Globalization;
 using System.Text;
 
@@ -257,7 +258,7 @@ namespace FestivalZnanostiApi.Services.impl
                     ParentLocationId = e.Location.ParentLocationId ?? e.Location.Id
                 }
                 )).GroupBy(e => e.Date)
-                                  .ToDictionary(
+                                  .ToImmutableSortedDictionary(
                                         group => group.Key,
                                         group => group
                                             .GroupBy(e => e.ParentLocationId)
