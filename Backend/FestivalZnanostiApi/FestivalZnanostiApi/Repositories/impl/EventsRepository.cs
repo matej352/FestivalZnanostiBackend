@@ -95,31 +95,44 @@ namespace FestivalZnanostiApi.Repositories.impl
                 try
                 {
 
-                    //TODO: Provjerit da je sve validirano, code refactor
-
                     //  VALIDATION - location with provided id exists
                     var location = _context.Location.Where(location => location.Id == createEvent.LocationId).FirstOrDefault();
                     if (location is null)
                     {
                         throw new Exception("Location with provided id does not exists!");
                     }
+
+
                     var timeSlotsTracked = location.TimeSlotsTracked;
 
 
-                    //  VALIDATION - event timeslots are provided
+                    //  VALIDATION - event timeslot ids are provided
                     if (createEvent.TimeSlotIds is null)
                     {
                         throw new Exception("Timeslots are required for creating Event!");
                     }
 
-
-                    //get models from dtos
                     List<int> timeSlotIds = createEvent.TimeSlotIds;
                     List<TimeSlot> timeSlots = await _context.TimeSlot
                         .Where(ts => timeSlotIds.Contains(ts.Id))
                         .ToListAsync();
 
-                    // Check are given timeslots timeslots for the proper location
+
+                    var activeFestivalYear = await _context.FestivalYear.FirstOrDefaultAsync(fy => fy.Active == 1);
+                    if (activeFestivalYear is null)
+                    {
+                        throw new Exception("There is no active festival year!");
+                    }
+
+                    //  VALIDATION - check are timeslots timeslots for currently active festival year
+                    bool allTimeslotsAreForActiveFestivalYear = timeSlots.All(slot => slot.FestivalYearId == activeFestivalYear.Id);
+                    if (!allTimeslotsAreForActiveFestivalYear)
+                    {
+                        throw new Exception("Not all timeslots are timeslots of currently active festival year!");
+                    }
+
+
+                    //  VALIDATION - check are given timeslots timeslots for the proper location
                     if (!timeSlotsTracked)
                     {
                         bool allHaveNullLocationId = timeSlots.All(slot => slot.LocationId == null);
@@ -137,6 +150,16 @@ namespace FestivalZnanostiApi.Repositories.impl
                         }
                     }
 
+                    //  VALIDATION - check whether the time slots are in a row and ensure that their count within a day does not exceed a specified maximum
+                    if (timeSlotsTracked)
+                    {
+                        if (!AreTimeSlotsInRowAndWithinMaximumCount(timeSlots, location.EventDuration))
+                        {
+                            var timeslotsMaximumCount = location.EventDuration == 45 ? 2 : 6;
+                            throw new Exception($"Timeslots are not in a row within a day or there are more then {timeslotsMaximumCount} timeslots in a row within a day!");
+                        }
+                    }
+
 
 
                     List<int> participantsAgesIds = createEvent.ParticipantsAges.Select(dto => dto.Id).ToList();
@@ -145,28 +168,11 @@ namespace FestivalZnanostiApi.Repositories.impl
                         .ToListAsync();
 
 
-                    //  VALIDATION - That means that Event is in Tehnički muzej ( Kino dvorana (id=2), Izložbena dvorana (id=3) or Dvroište(id=4) )
+                    //  VALIDATION - check event type and location match
                     if (timeSlotsTracked)
                     {
-                        checkEventTypeAndLocationMatch(location.Id, createEvent.Type);
-
-                        //  TODO: provjerit pripadaju li timeslotovi lokaciji sa createEvent.LocationId
+                        CheckEventTypeAndLocationMatch(location.Id, createEvent.Type);
                     }
-                    else
-                    {
-                        //check are the selected timeslots actually timeslots for untrackable Events (TimeSlot.LocationId should be null)
-                        bool allHaveNullLocationId = timeSlots.All(ts => ts.LocationId == null);
-
-                        if (!allHaveNullLocationId)
-                        {
-                            throw new Exception("Timeslots do not correspond to the provided location!");
-                        }
-                    }
-
-
-
-                    //Check are timeslots between startDate end endDate of currently active festival year ILI DA ROKNEM DA SVAKI TIMESLOT IMA ID FESTIVALA
-
 
 
                     // Create the Event
@@ -179,7 +185,7 @@ namespace FestivalZnanostiApi.Repositories.impl
                         Equipment = createEvent.Equipment,
                         Summary = createEvent.Summary,
                         LocationId = createEvent.LocationId,
-                        FestivalYearId = _context.FestivalYear.Where(festivalYear => festivalYear.Active == 1).FirstOrDefault()!.Id,
+                        FestivalYearId = activeFestivalYear.Id,
                         SubmitterId = submitterId,
                         TimeSlot = (ICollection<TimeSlot>)timeSlots,
                         ParticipantsAge = (ICollection<ParticipantsAge>)participantsAges
@@ -189,26 +195,36 @@ namespace FestivalZnanostiApi.Repositories.impl
                     await _context.SaveChangesAsync();
 
                     // Create Lecturers
-                    if (createEvent.Lecturers != null)
-                    {
-                        foreach (var lecturerDto in createEvent.Lecturers)
-                        {
-                            var newLecturer = new Lecturer
-                            {
-                                FirstName = lecturerDto.FirstName,
-                                LastName = lecturerDto.LastName,
-                                Phone = lecturerDto.Phone,
-                                Email = lecturerDto.Email,
-                                Type = (int)lecturerDto.Type == 1 ? true : false,
-                                Resume = lecturerDto.Resume,
-                                EventId = newEvent.Id
-                            };
+                    int leaderLecturerCount = 0;
 
-                            _context.Lecturer.Add(newLecturer);
+                    foreach (var lecturerDto in createEvent.Lecturers)
+                    {
+                        if (lecturerDto.Type == LecturerType.Leader)
+                        {
+                            leaderLecturerCount++;
                         }
 
-                        await _context.SaveChangesAsync();
+                        var newLecturer = new Lecturer
+                        {
+                            FirstName = lecturerDto.FirstName,
+                            LastName = lecturerDto.LastName,
+                            Phone = lecturerDto.Phone,
+                            Email = lecturerDto.Email,
+                            Type = lecturerDto.Type == LecturerType.Leader ? false : true,
+                            Resume = lecturerDto.Resume,
+                            EventId = newEvent.Id
+                        };
+
+                        _context.Lecturer.Add(newLecturer);
                     }
+
+                    if (leaderLecturerCount != 1)
+                    {
+                        throw new Exception("There should be exactly 1 leader lecturer!");
+                    }
+
+                    await _context.SaveChangesAsync();
+
 
 
 
@@ -217,6 +233,7 @@ namespace FestivalZnanostiApi.Repositories.impl
                         await IncrementTimeSlotBookedCount(createEvent.TimeSlotIds, createEvent.LocationId, location.ParallelEventCount);
                     }
 
+
                     transaction.Commit();
 
                     return newEvent.Id;
@@ -224,7 +241,7 @@ namespace FestivalZnanostiApi.Repositories.impl
                 catch (Exception exception)
                 {
                     transaction.Rollback();
-                    throw new Exception("Problem while creating new Event! \n" + exception.Message);
+                    throw new Exception("Problem while creating new Event! " + exception.Message);
                 }
 
 
@@ -233,7 +250,7 @@ namespace FestivalZnanostiApi.Repositories.impl
 
         }
 
-        private void checkEventTypeAndLocationMatch(int locationId, EventType eventType)
+        private void CheckEventTypeAndLocationMatch(int locationId, EventType eventType)
         {
             if ((eventType == EventType.Predavanje && locationId == 2) || ((eventType == EventType.Prezentacija || eventType == EventType.Radionica) && (locationId == 3 || locationId == 4)) || (eventType == EventType.Izlozba && locationId == 3))
             {
@@ -262,6 +279,37 @@ namespace FestivalZnanostiApi.Repositories.impl
             }
         }
 
+        private bool AreTimeSlotsInRowAndWithinMaximumCount(List<TimeSlot> timeSlots, int timeslotDuration)
+        {
+
+            var timeslotsMaximumCount = timeslotDuration == 45 ? 2 : 6;
+
+            var groupedByDate = timeSlots.GroupBy(ts => ts.Start.Date);
+
+            foreach (var date in groupedByDate)
+            {
+                List<DateTime> orderedTimeSlots = date.OrderBy(ts => ts.Start).Select(ts => ts.Start).ToList();
+
+                // Check if time slots are in a row
+                for (int i = 0; i < orderedTimeSlots.Count - 1; i++)
+                {
+                    TimeSpan difference = orderedTimeSlots[i + 1] - orderedTimeSlots[i];
+                    if (difference != TimeSpan.FromMinutes(timeslotDuration))
+                    {
+                        return false;
+                    }
+                }
+
+                // Check if there are at most timeslotsMaximumCount consecutive time slots
+                if (orderedTimeSlots.Count > timeslotsMaximumCount)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         public async Task<int> UpdateEvent(UpdateEventDto updateEvent)
         {
             using (var transaction = _context.Database.BeginTransaction())
@@ -275,15 +323,26 @@ namespace FestivalZnanostiApi.Repositories.impl
                     {
                         throw new Exception("Location with provided id does not exists!");
                     }
+
+
                     var timeSlotsTracked = location.TimeSlotsTracked;
 
-                    //get models from dtos
+
                     List<int> timeSlotIds = updateEvent.TimeSlotIds;
                     List<TimeSlot> timeSlots = await _context.TimeSlot
                         .Where(ts => timeSlotIds.Contains(ts.Id))
                         .ToListAsync();
 
 
+                    //  VALIDATION - check whether the time slots are in a row and ensure that their count within a day does not exceed a specified maximum
+                    if (timeSlotsTracked)
+                    {
+                        if (!AreTimeSlotsInRowAndWithinMaximumCount(timeSlots, location.EventDuration))
+                        {
+                            var timeslotsMaximumCount = location.EventDuration == 45 ? 2 : 6;
+                            throw new Exception($"Timeslots are not in a row within a day or there are more then {timeslotsMaximumCount} timeslots in a row within a day!");
+                        }
+                    }
 
 
                     // Retrieve the existing event
@@ -298,22 +357,46 @@ namespace FestivalZnanostiApi.Repositories.impl
                         throw new Exception($"Event with ID {updateEvent.Id} not found.");
                     }
 
-                    //  VALIDATION - That means that Event is in Tehnički muzej ( Kino dvorana (id=2), Izložbena dvorana (id=3) or Dvroište(id=4) )
-                    if (timeSlotsTracked)
+                    var activeFestivalYear = await _context.FestivalYear.FirstOrDefaultAsync(fy => fy.Active == 1);
+                    if (activeFestivalYear is null)
                     {
-                        checkEventTypeAndLocationMatch(location.Id, updateEvent.Type);
+                        throw new Exception("There is no active festival year!");
+                    }
 
-                        //  TODO: provjerit pripadaju li timeslotovi lokaciji sa createEvent.LocationId
+
+                    //  VALIDATION - check are timeslots timeslots for currently active festival year
+                    bool allTimeslotsAreForActiveFestivalYear = timeSlots.All(slot => slot.FestivalYearId == activeFestivalYear.Id);
+                    if (!allTimeslotsAreForActiveFestivalYear)
+                    {
+                        throw new Exception("Not all timeslots are timeslots of currently active festival year!");
+                    }
+
+
+                    //  VALIDATION - check are given timeslots timeslots for the proper location
+                    if (!timeSlotsTracked)
+                    {
+                        bool allHaveNullLocationId = timeSlots.All(slot => slot.LocationId == null);
+                        if (!allHaveNullLocationId)
+                        {
+                            throw new Exception("Not all timeslots correspond to the given event location!");
+                        }
                     }
                     else
                     {
-                        //check are the selected timeslots actually timeslots for untrackable Events (TimeSlot.LocationId should be null)
-                        bool allHaveNullLocationId = timeSlots.All(ts => ts.LocationId == null);
-
-                        if (!allHaveNullLocationId)
+                        bool allHaveProperLocationId = timeSlots.All(slot => slot.LocationId == location.Id);
+                        if (!allHaveProperLocationId)
                         {
-                            throw new Exception("Timeslots do not correspond to the provided location!");
+                            throw new Exception("Not all timeslots correspond to the given event location!");
                         }
+                    }
+
+
+
+                    //  VALIDATION - check event type and location match
+                    if (timeSlotsTracked)
+                    {
+                        CheckEventTypeAndLocationMatch(location.Id, updateEvent.Type);
+
                     }
 
 
@@ -341,7 +424,6 @@ namespace FestivalZnanostiApi.Repositories.impl
                     existingEvent.TimeSlot.Clear();
 
 
-
                     if (updateEvent.TimeSlotIds != null)
                     {
 
@@ -354,6 +436,8 @@ namespace FestivalZnanostiApi.Repositories.impl
                     {
                         throw new Exception("Timeslots are required for updating Event!");
                     }
+
+
 
                     if (timeSlotsTracked && updateEvent.Type != EventType.Izlozba)
                     {
@@ -386,6 +470,11 @@ namespace FestivalZnanostiApi.Repositories.impl
 
                             if (lecturer != null)
                             {
+                                if (lecturer.EventId != updateEvent.Id)
+                                {
+                                    throw new Exception($"You can not delete lecturer with id = {id} beacuse it is not connected to the currently updating event!");
+                                }
+
                                 _context.Lecturer.Remove(lecturer);
                             }
                         }
@@ -403,7 +492,7 @@ namespace FestivalZnanostiApi.Repositories.impl
                                 LastName = lecturerDto.LastName,
                                 Phone = lecturerDto.Phone,
                                 Email = lecturerDto.Email,
-                                Type = (int)lecturerDto.Type == 1 ? true : false,
+                                Type = lecturerDto.Type == LecturerType.Leader ? false : true,
                                 Resume = lecturerDto.Resume,
                                 EventId = existingEvent.Id
                             };
@@ -422,11 +511,16 @@ namespace FestivalZnanostiApi.Repositories.impl
 
                             if (lecturer != null)
                             {
+                                if (lecturer.EventId != updateEvent.Id)
+                                {
+                                    throw new Exception($"You can not update lecturer with id = {lecturerDto.Id} beacuse it is not connected to the currently updating event!");
+                                }
+
                                 lecturer.FirstName = lecturerDto.FirstName;
                                 lecturer.LastName = lecturerDto.LastName;
                                 lecturer.Phone = lecturerDto.Phone;
                                 lecturer.Email = lecturerDto.Email;
-                                lecturer.Type = (int)lecturerDto.Type == 1 ? true : false;
+                                lecturer.Type = lecturerDto.Type == LecturerType.Leader ? false : true;
                                 lecturer.Resume = lecturerDto.Resume;
 
                                 await _context.SaveChangesAsync();
@@ -436,7 +530,11 @@ namespace FestivalZnanostiApi.Repositories.impl
                     }
 
 
-
+                    var leaderLecturers = await _context.Lecturer.Where(l => l.EventId == updateEvent.Id && l.Type == false).ToListAsync();
+                    if (leaderLecturers.Count != 1)
+                    {
+                        throw new Exception("There should be exactly 1 leader lecturer!");
+                    }
 
 
                     await _context.SaveChangesAsync();
@@ -448,7 +546,7 @@ namespace FestivalZnanostiApi.Repositories.impl
                 catch (Exception exception)
                 {
                     transaction.Rollback();
-                    throw new Exception($"Problem while updating Event with ID {updateEvent.Id}! \n" + exception.Message);
+                    throw new Exception($"Problem while updating Event with ID {updateEvent.Id}! " + exception.Message);
                 }
             }
         }
@@ -504,18 +602,6 @@ namespace FestivalZnanostiApi.Repositories.impl
                 }
             }
         }
-
-
-
-        /*
-         
-        Predavanje --> u kino dvorani
-        Prezentacija ili Radionica --> Izložbena dvorana ili Dvorište
-         
-         
-         
-         */
-
 
 
 
